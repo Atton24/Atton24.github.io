@@ -1,0 +1,13 @@
+{
+"companyName": "DefaultCompany",
+"productName": "Team 4 Final Project",
+"dataUrl": "Desktop.data.unityweb",
+"wasmCodeUrl": "Desktop.wasm.code.unityweb",
+"wasmFrameworkUrl": "Desktop.wasm.framework.unityweb",
+"TOTAL_MEMORY": 536870912,
+"graphicsAPI": ["WebGL 2.0", "WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"}
+}
