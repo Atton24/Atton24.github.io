@@ -1,0 +1,20 @@
+.navbar{
+  margin-bottom:0;
+  border-radius:0;
+}
+.navBuffer
+{
+  height:25px;
+}
+.noMargin{
+  margin:0px;
+}
+.alignLeft{
+  float: left;
+}
+.alignRight{
+  float: right;
+}
+.brandSize{
+    font-size:x-large
+}
