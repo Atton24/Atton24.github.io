@@ -24,3 +24,6 @@
 .aboutMe{
     width: 20%;
 }
+.carousel-inner{
+  margin: auto;
+}
