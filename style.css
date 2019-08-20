@@ -27,3 +27,16 @@
 .carousel-inner{
   margin: auto;
 }
+
+.centerImg {
+  display: block;
+  margin: 0 auto;
+}
+
+.backColor {
+  background-color: lightgrey;
+}
+
+.containerColor {
+  background-color: white;
+}
