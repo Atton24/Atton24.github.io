@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Daniel Thomas | IT Systems & Operations</title>
+  <meta name="description" content="Daniel Thomas – IT Systems & Operations Lead focused on infrastructure, automation, and reliable systems.">
+  <style>
+    :root {
+      --bg: #050816;
+      --bg-alt: #070b18;
+      --card: #0b1020;
+      --accent: #3abff8;
+      --accent-soft: rgba(58, 191, 248, 0.12);
+      --text: #f9fafb;
+      --muted: #9ca3af;
+      --border-subtle: rgba(148, 163, 184, 0.35);
+      --radius-lg: 18px;
+      --radius-pill: 999px;
+      --shadow-soft: 0 18px 45px rgba(15, 23, 42, 0.75);
+      --max-width: 1040px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #0b1220 0, #020617 55%, #020617 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    main {
+      min-height: 100vh;
+    }
+
+    .shell {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 1.5rem 1.25rem 4rem;
+    }
+
+    /* Top nav */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(18px);
+      background: linear-gradient(to bottom, rgba(2, 6, 23, 0.92), rgba(2, 6, 23, 0.75), transparent);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.85);
+    }
+
+    .nav {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      padding: 0.9rem 1.25rem 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .nav-left {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .monogram {
+      width: 34px;
+      height: 34px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 0%, #38bdf8, #0ea5e9 40%, #0369a1 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.9), 0 12px 30px rgba(15, 23, 42, 0.9);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .monogram svg {
+      width: 80%;
+      height: 80%;
+    }
+
+    .nav-title {
+      display: flex;
+      flex-direction: column;
+      gap: 0.1rem;
+    }
+
+    .nav-title-main {
+      font-size: 0.95rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #e5e7eb;
+    }
+
+    .nav-title-sub {
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .nav-links a {
+      position: relative;
+      padding-bottom: 0.15rem;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: linear-gradient(to right, #38bdf8, #22c55e);
+      transition: width 0.18s ease-out;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .nav-cta span {
+      font-size: 0.9rem;
+    }
+
+    /* Hero */
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+      gap: 2.5rem;
+      align-items: center;
+      padding-top: 2.5rem;
+    }
+
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      gap: 1.75rem;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      width: fit-content;
+    }
+
+    .eyebrow-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.25);
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 4vw, 3.1rem);
+      line-height: 1.05;
+      letter-spacing: -0.04em;
+    }
+
+    .hero-title span {
+      background: linear-gradient(to right, #e5e7eb, #38bdf8);
+      -webkit-background-clip: text;
+      color: transparent;
+    }
+
+    .hero-subtitle {
+      font-size: 0.98rem;
+      color: var(--muted);
+      max-width: 34rem;
+      line-height: 1.6;
+    }
+
+    .hero-subtitle strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    .btn-primary,
+    .btn-ghost {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.7rem 1.1rem;
+      border-radius: var(--radius-pill);
+      font-size: 0.85rem;
+      border: 1px solid transparent;
+      cursor: pointer;
+      background: none;
+      color: inherit;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #38bdf8, #22c55e);
+      color: #0b1120;
+      font-weight: 600;
+      box-shadow: 0 14px 30px rgba(8, 47, 73, 0.7);
+    }
+
+    .btn-ghost {
+      border-color: rgba(148, 163, 184, 0.6);
+      background: radial-gradient(circle at top left, rgba(15, 23, 42, 0.9), rgba(15, 23, 42, 0.9));
+      color: #e5e7eb;
+    }
+
+    .btn-primary svg,
+    .btn-ghost svg {
+      width: 14px;
+      height: 14px;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.25rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .hero-meta span {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .hero-meta-dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(148, 163, 184, 0.8);
+    }
+
+    /* Hero right: card + wave */
+    .hero-right {
+      position: relative;
+    }
+
+    .hero-card {
+      position: relative;
+      border-radius: 26px;
+      background: radial-gradient(circle at top, #020617, #020617 55%, #020617 100%);
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      box-shadow: var(--shadow-soft);
+      padding: 1.4rem 1.4rem 1.2rem;
+      overflow: hidden;
+      isolation: isolate;
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.1rem;
+    }
+
+    .hero-card-title {
+      font-size: 0.85rem;
+      color: #e5e7eb;
+    }
+
+    .hero-card-sub {
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .hero-card-badges {
+      display: flex;
+      gap: 0.4rem;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .badge {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      font-size: 0.7rem;
+      color: #e5e7eb;
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
+    }
+
+    .wave-shell {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      background: radial-gradient(circle at top, #0b1120, #020617);
+      border: 1px solid rgba(30, 64, 175, 0.7);
+      padding: 0.9rem 0.9rem 0.7rem;
+    }
+
+    .wave-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .wave-label span:first-child {
+      color: #e5e7eb;
+      font-size: 0.78rem;
+    }
+
+    .wave-svg {
+      width: 100%;
+      height: 120px;
+      display: block;
+    }
+
+    .wave-svg path {
+      stroke-linecap: round;
+    }
+
+    .hero-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.7rem;
+      font-size: 0.75rem;
+      color: var(--muted);
+    }
+
+    .hero-card-footer strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .hero-card-footer-pill {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .hero-orbit {
+      position: absolute;
+      inset: -40px;
+      pointer-events: none;
+      opacity: 0.9;
+      mix-blend-mode: screen;
+    }
+
+    .hero-orbit::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(56, 189, 248, 0.18), transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(34, 197, 94, 0.18), transparent 55%);
+      opacity: 0.9;
+    }
+
+    /* Sections */
+    section {
+      margin-top: 3.5rem;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.1rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: #9ca3af;
+    }
+
+    .section-subtitle {
+      font-size: 0.9rem;
+      color: var(--muted);
+      max-width: 26rem;
+    }
+
+    /* About */
+    .about-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.2fr);
+      gap: 2rem;
+    }
+
+    .about-text {
+      font-size: 0.95rem;
+      color: var(--muted);
+      line-height: 1.7;
+    }
+
+    .about-text p + p {
+      margin-top: 0.9rem;
+    }
+
+    .about-highlight {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .about-meta {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 0.75rem;
+      margin-top: 1.1rem;
+      font-size: 0.8rem;
+    }
+
+    .about-meta-item {
+      padding: 0.7rem 0.8rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .about-meta-label {
+      color: var(--muted);
+      margin-bottom: 0.15rem;
+    }
+
+    .about-meta-value {
+      color: #e5e7eb;
+    }
+
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+    }
+
+    .pill {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Skills */
+    .skills-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, 2.4fr);
+      gap: 2rem;
+    }
+
+    .skills-groups {
+      display: flex;
+      flex-direction: column;
+      gap: 0.9rem;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    .skills-group-title {
+      color: #e5e7eb;
+      font-size: 0.9rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .skills-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .skills-tags span {
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.78rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .skills-meter-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.9rem;
+    }
+
+    .meter-card {
+      padding: 0.75rem 0.8rem 0.7rem;
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      font-size: 0.8rem;
+    }
+
+    .meter-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+      color: #e5e7eb;
+    }
+
+    .meter-label span:last-child {
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+
+    .meter-track {
+      width: 100%;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(30, 64, 175, 0.7);
+      overflow: hidden;
+    }
+
+    .meter-fill {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(to right, #38bdf8, #22c55e);
+    }
+
+    /* Projects */
+    .projects-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+    }
+
+    .project-card {
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, #020617, #020617 60%, #020617 100%);
+      padding: 0.9rem 0.9rem 0.85rem;
+      box-shadow: 0 14px 30px rgba(15, 23, 42, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .project-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .project-title {
+      color: #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    .project-tag {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .project-body {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .project-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.4rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .project-links {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .project-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Experience */
+    .timeline {
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.9);
+      padding: 1rem 1rem 0.8rem;
+      font-size: 0.85rem;
+    }
+
+    .timeline-item {
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.6fr);
+      gap: 1.2rem;
+      padding: 0.7rem 0;
+    }
+
+    .timeline-item + .timeline-item {
+      border-top: 1px solid rgba(31, 41, 55, 0.9);
+    }
+
+    .timeline-role {
+      color: #e5e7eb;
+      margin-bottom: 0.15rem;
+    }
+
+    .timeline-company {
+      color: var(--muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .timeline-meta {
+      font-size: 0.78rem;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .timeline-bullets {
+      list-style: none;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .timeline-bullets li + li {
+      margin-top: 0.25rem;
+    }
+
+    .timeline-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      margin-top: 0.3rem;
+    }
+
+    .timeline-tag {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    /* Contact */
+    .contact-card {
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, #020617, #020617 60%, #020617 100%);
+      padding: 1rem 1rem 0.9rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 2fr);
+      gap: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .contact-text {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .contact-text strong {
+      color: #e5e7eb;
+      font-weight: 500;
+    }
+
+    .contact-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      margin-top: 0.9rem;
+    }
+
+    .contact-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.6);
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      background: rgba(15, 23, 42, 0.9);
+    }
+
+    .contact-meta {
+      display: grid;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      color: var(--muted);
+    }
+
+    .contact-meta-row span:first-child {
+      color: #e5e7eb;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid rgba(15, 23, 42, 0.9);
+      margin-top: 3rem;
+      padding: 1.2rem 1.25rem 1.5rem;
+      font-size: 0.78rem;
+      color: var(--muted);
+    }
+
+    .footer-inner {
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .footer-links a {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 880px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .hero-right {
+        order: -1;
+      }
+
+      .about-grid,
+      .skills-grid,
+      .contact-card,
+      .timeline-item {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .nav {
+        padding-inline: 1.1rem;
+      }
+
+      .shell {
+        padding-inline: 1.1rem;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .hero-title {
+        font-size: 2.1rem;
+      }
+
+      .hero-card {
+        padding: 1.1rem 1.1rem 1rem;
+      }
+
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <div class="nav-left">
+        <div class="monogram" aria-hidden="true">
+          <!-- Simple intertwined DT mark -->
+          <svg viewBox="0 0 40 40" fill="none">
+            <path d="M9 10h10c6 0 10 3.5 10 9.5S25 29 19 29h-5V10"
+                  stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21 10v19" stroke="#38bdf8" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <div class="nav-title">
+          <div class="nav-title-main">Daniel Thomas</div>
+          <div class="nav-title-sub">IT Systems &amp; Operations</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#projects">Projects</a>
+        <a href="#experience">Experience</a>
+        <a href="#contact">Contact</a>
+        <a href="Daniel_Thomas_Resume.pdf" class="nav-cta">
+          Resume
+          <span>↗</span>
+        </a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="shell">
+      <!-- Hero -->
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-left">
+          <div class="eyebrow">
+            <span class="eyebrow-dot"></span>
+            <span>Systems • Reliability • Automation</span>
+          </div>
+          <h1 id="hero-title" class="hero-title">
+            I keep <span>infrastructure</span> fast, reliable, and quietly doing its job.
+          </h1>
+          <p class="hero-subtitle">
+            I’m Daniel Thomas, an <strong>IT Systems &amp; Operations Lead</strong> focused on
+            <strong>infrastructure, automation, and operational excellence</strong>. I design, run, and
+            refine the systems that teams depend on every day—so they don’t have to think about them.
+          </p>
+          <div class="hero-actions">
+            <a href="#projects" class="btn-primary">
+              View selected work
+              <svg viewBox="0 0 20 20" fill="none">
+                <path d="M5 10h7.5M10 5l4.5 4.5L10 14"
+                      stroke="#020617" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+            <a href="#contact" class="btn-ghost">
+              Get in touch
+              <svg viewBox="0 0 20 20" fill="none">
+                <path d="M4 5h12M4 10h7M4 15h4"
+                      stroke="#e5e7eb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          </div>
+          <div class="hero-meta">
+            <span>
+              <span class="hero-meta-dot"></span>
+              Based in Roseville, CA
+            </span>
+            <span>
+              <span class="hero-meta-dot"></span>
+              IT Systems &amp; Operations Lead @ Luxer One
+            </span>
+            <span>
+              <span class="hero-meta-dot"></span>
+              Infra • Scripting • Observability
+            </span>
+          </div>
+        </div>
+
+        <div class="hero-right" aria-hidden="true">
+          <div class="hero-card">
+            <div class="hero-card-header">
+              <div>
+                <div class="hero-card-title">Waveform Uptime View</div>
+                <div class="hero-card-sub">Rolling 30‑day service health</div>
+              </div>
+              <div class="hero-card-badges">
+                <span class="badge">SLA &gt; 99.9%</span>
+                <span class="badge">Noise‑reduced alerts</span>
+              </div>
+            </div>
+
+            <div class="wave-shell">
+              <div class="wave-label">
+                <span>Core services</span>
+                <span>Latency • Errors • Throughput</span>
+              </div>
+              <!-- Wave motif -->
+              <svg class="wave-svg" viewBox="0 0 320 120">
+                <defs>
+                  <linearGradient id="waveStroke" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0%" stop-color="#38bdf8"/>
+                    <stop offset="50%" stop-color="#22c55e"/>
+                    <stop offset="100%" stop-color="#a855f7"/>
+                  </linearGradient>
+                  <linearGradient id="waveFill" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stop-color="rgba(56,189,248,0.35)"/>
+                    <stop offset="100%" stop-color="rgba(15,23,42,0.1)"/>
+                  </linearGradient>
+                </defs>
+                <path d="M0 70
+                         C 40 40, 80 40, 120 70
+                         S 200 100, 240 70
+                         S 280 40, 320 70"
+                      fill="none" stroke="url(#waveStroke)" stroke-width="2.4"/>
+                <path d="M0 70
+                         C 40 40, 80 40, 120 70
+                         S 200 100, 240 70
+                         S 280 40, 320 70
+                         L 320 120 L 0 120 Z"
+                      fill="url(#waveFill)" opacity="0.55"/>
+                <path d="M0 82
+                         C 40 52, 80 52, 120 82
+                         S 200 112, 240 82
+                         S 280 52, 320 82"
+                      fill="none" stroke="rgba(148,163,184,0.55)" stroke-width="1.1" stroke-dasharray="4 4"/>
+              </svg>
+            </div>
+
+            <div class="hero-card-footer">
+              <span>Designed for <strong>quiet reliability</strong> over heroics.</span>
+              <span class="hero-card-footer-pill">Infra • Monitoring • Incident flow</span>
+            </div>
+
+            <div class="hero-orbit"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- About -->
+      <section id="about" aria-labelledby="about-title">
+        <div class="section-header">
+          <h2 id="about-title" class="section-title">About</h2>
+          <p class="section-subtitle">
+            A systems‑minded generalist with a bias toward automation, observability, and making complex stacks feel boring—in the best way.
+          </p>
+        </div>
+
+        <div class="about-grid">
+          <div class="about-text">
+            <p>
+              I lead <span class="about-highlight">IT systems and operations at Luxer One</span>, where I’m responsible for the
+              infrastructure that powers smart locker networks and internal tooling. My work spans
+              <span class="about-highlight">Windows and Linux servers, virtualization, networking, identity, and SaaS integrations</span>.
+            </p>
+            <p>
+              I care about <span class="about-highlight">reliability, clarity, and good defaults</span>. That means building guardrails,
+              not gates; automating the repetitive parts; and giving teams visibility into what’s happening without drowning them in alerts.
+            </p>
+            <p>
+              Before that, I studied <span class="about-highlight">Computer Science (with a Math minor)</span> at the University of Nevada, Reno.
+              These days, you’ll find me tuning infrastructure, refining monitoring, or experimenting with
+              <span class="about-highlight">clean, wave‑inspired visual systems</span> for the tools I build.
+            </p>
+          </div>
+
+          <div>
+            <div class="about-meta">
+              <div class="about-meta-item">
+                <div class="about-meta-label">Current role</div>
+                <div class="about-meta-value">IT Systems &amp; Operations Lead</div>
+              </div>
+              <div class="about-meta-item">
+                <div class="about-meta-label">Location</div>
+                <div class="about-meta-value">Roseville, California</div>
+              </div>
+              <div class="about-meta-item">
+                <div class="about-meta-label">Focus areas</div>
+                <div class="pill-row">
+                  <span class="pill">Infrastructure</span>
+                  <span class="pill">Automation</span>
+                  <span class="pill">Monitoring</span>
+                  <span class="pill">SRE‑adjacent ops</span>
+                </div>
+              </div>
+              <div class="about-meta-item">
+                <div class="about-meta-label">Outside of work</div>
+                <div class="about-meta-value">
+                  Game servers, clean UI experiments, and wave‑inspired design.
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Skills -->
+      <section id="skills" aria-labelledby="skills-title">
+        <div class="section-header">
+          <h2 id="skills-title" class="section-title">Skills</h2>
+          <p class="section-subtitle">
+            A mix of infrastructure, scripting, and operational glue—enough to design, deploy, and keep systems healthy over time.
+          </p>
+        </div>
+
+        <div class="skills-grid">
+          <div class="skills-groups">
+            <div>
+              <div class="skills-group-title">Infrastructure &amp; platforms</div>
+              <div class="skills-tags">
+                <span>Windows Server</span>
+                <span>Linux</span>
+                <span>Hyper‑V</span>
+                <span>VMware</span>
+                <span>Networking</span>
+                <span>Firewalls</span>
+              </div>
+            </div>
+            <div>
+              <div class="skills-group-title">Automation &amp; scripting</div>
+              <div class="skills-tags">
+                <span>PowerShell</span>
+                <span>Bash</span>
+                <span>Python (ops tooling)</span>
+                <span>Task automation</span>
+              </div>
+            </div>
+            <div>
+              <div class="skills-group-title">Ops &amp; reliability</div>
+              <div class="skills-tags">
+                <span>Monitoring &amp; alerting</span>
+                <span>Incident response</span>
+                <span>Capacity planning</span>
+                <span>Documentation</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="skills-meter-grid">
+            <div class="meter-card">
+              <div class="meter-label">
+                <span>Systems &amp; infrastructure</span>
+                <span>Deep experience</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill" style="width: 92%;"></div>
+              </div>
+            </div>
+            <div class="meter-card">
+              <div class="meter-label">
+                <span>Automation &amp; scripting</span>
+                <span>Daily driver</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill" style="width: 86%;"></div>
+              </div>
+            </div>
+            <div class="meter-card">
+              <div class="meter-label">
+                <span>Monitoring &amp; observability</span>
+                <span>Opinionated</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill" style="width: 84%;"></div>
+              </div>
+            </div>
+            <div class="meter-card">
+              <div class="meter-label">
+                <span>Cross‑team collaboration</span>
+                <span>Partner‑first</span>
+              </div>
+              <div class="meter-track">
+                <div class="meter-fill" style="width: 88%;"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Projects -->
+      <section id="projects" aria-labelledby="projects-title">
+        <div class="section-header">
+          <h2 id="projects-title" class="section-title">Selected work</h2>
+          <p class="section-subtitle">
+            A few representative projects that show how I think about reliability, automation, and making systems easier to live with.
+          </p>
+        </div>
+
+        <div class="projects-grid">
+          <article class="project-card">
+            <div class="project-header">
+              <div>
+                <h3 class="project-title">Enshrouded dedicated server stack</h3>
+                <p class="project-body">
+                  Built and tuned a dedicated game server environment on Hyper‑V and Dell T440 hardware,
+                  focusing on performance, stability, and easy repeatability.
+                </p>
+              </div>
+              <span class="project-tag">Infra lab</span>
+            </div>
+            <div class="project-meta">
+              <span>Hyper‑V • Windows • Networking</span>
+              <div class="project-links">
+                <!-- Replace with real links if you want -->
+                <span class="project-link">Notes (internal)</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <div class="project-header">
+              <div>
+                <h3 class="project-title">Operational automation scripts</h3>
+                <p class="project-body">
+                  PowerShell and Python tooling to standardize common tasks, reduce manual work, and
+                  make recurring operations safer and more predictable.
+                </p>
+              </div>
+              <span class="project-tag">Automation</span>
+            </div>
+            <div class="project-meta">
+              <span>PowerShell • Python • Runbooks</span>
+              <div class="project-links">
+                <span class="project-link">Private repo</span>
+              </div>
+            </div>
+          </article>
+
+          <article class="project-card">
+            <div class="project-header">
+              <div>
+                <h3 class="project-title">Wave‑inspired monitoring UI concepts</h3>
+                <p class="project-body">
+                  Visual explorations for status dashboards using continuous waveforms to represent
+                  service health—prioritizing calm visuals over noisy charts.
+                </p>
+              </div>
+              <span class="project-tag">Design</span>
+            </div>
+            <div class="project-meta">
+              <span>Figma • UI systems</span>
+              <div class="project-links">
+                <span class="project-link">Concepts</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <!-- Experience -->
+      <section id="experience" aria-labelledby="experience-title">
+        <div class="section-header">
+          <h2 id="experience-title" class="section-title">Experience</h2>
+          <p class="section-subtitle">
+            A snapshot of where I’ve been and the kind of problems I like to own.
+          </p>
+        </div>
+
+        <div class="timeline">
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">IT Systems &amp; Operations Lead</div>
+              <div class="timeline-company">Luxer One</div>
+              <div class="timeline-meta">2020 – Present • Sacramento area</div>
+              <ul class="timeline-bullets">
+                <li>Owns core infrastructure, identity, and key internal services.</li>
+                <li>Designs and maintains automation for recurring operational tasks.</li>
+                <li>Improves monitoring, alerting, and incident response workflows.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="timeline-tags">
+                <span class="timeline-tag">Infra ownership</span>
+                <span class="timeline-tag">Automation</span>
+                <span class="timeline-tag">Monitoring</span>
+                <span class="timeline-tag">Cross‑team support</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="timeline-item">
+            <div>
+              <div class="timeline-role">B.S. Computer Science, Math minor</div>
+              <div class="timeline-company">University of Nevada, Reno</div>
+              <div class="timeline-meta">Graduated • CS + Mathematics</div>
+              <ul class="timeline-bullets">
+                <li>Foundations in algorithms, systems, and discrete math.</li>
+                <li>Applied that background to practical infrastructure and operations work.</li>
+              </ul>
+            </div>
+            <div>
+              <div class="timeline-tags">
+                <span class="timeline-tag">Computer Science</span>
+                <span class="timeline-tag">Mathematics</span>
+                <span class="timeline-tag">Systems thinking</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Contact -->
+      <section id="contact" aria-labelledby="contact-title">
+        <div class="section-header">
+          <h2 id="contact-title" class="section-title">Contact</h2>
+          <p class="section-subtitle">
+            Whether it’s infrastructure, automation, or just comparing notes on clean monitoring setups—I’m always open to a good systems conversation.
+          </p>
+        </div>
+
+        <div class="contact-card">
+          <div>
+            <p class="contact-text">
+              The best way to reach me is by email. I’m happy to talk about
+              <strong>systems roles, infrastructure challenges, or collaboration on tooling</strong>.
+            </p>
+            <div class="contact-actions">
+              <a href="mailto:your.email@example.com" class="contact-pill">
+                <span>✉</span>
+                <span>Email Daniel</span>
+              </a>
+              <a href="https://github.com/atton24" class="contact-pill" target="_blank" rel="noreferrer">
+                <span>🐙</span>
+                <span>GitHub</span>
+              </a>
+              <a href="https://www.linkedin.com" class="contact-pill" target="_blank" rel="noreferrer">
+                <span>in</span>
+                <span>LinkedIn</span>
+              </a>
+            </div>
+          </div>
+          <div class="contact-meta">
+            <div class="contact-meta-row">
+              <span>Current stack</span><br />
+              <span>Windows &amp; Linux servers, Hyper‑V, networking, automation, monitoring.</span>
+            </div>
+            <div class="contact-meta-row">
+              <span>Availability</span><br />
+              <span>Open to interesting infra/ops conversations and future opportunities.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© <span id="year"></span> Daniel Thomas.</span>
+      <div class="footer-links">
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Set current year
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
