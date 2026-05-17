@@ -1,59 +1,165 @@
 <!DOCTYPE html>
 <html lang="en-us">
   <head>
-    <meta charset="utf-8">
-    <meta http-equiv="Content-Type; X-UA-Compatible" content="text/html; IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Food Fight Game</title>
-    <link rel="shortcut icon" href="TemplateData/favicon.ico">
-    <link rel="stylesheet" href="TemplateData/style.css">
-    <script src="TemplateData/UnityProgress.js"></script>  
+    <meta charset="utf-8" />
+    <meta http-equiv="Content-Type; X-UA-Compatible" content="text/html; IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>FoodFight | Daniel Thomas</title>
+
+    <!-- Site styling -->
+    <link rel="stylesheet" href="../styles.css" />
+
+    <!-- Unity assets -->
+    <link rel="shortcut icon" href="TemplateData/favicon.ico" />
+    <link rel="stylesheet" href="TemplateData/style.css" />
+    <script src="TemplateData/UnityProgress.js"></script>
     <script src="Build/UnityLoader.js"></script>
     <script>
-      var gameInstance = UnityLoader.instantiate("gameContainer", "Build/Food Fight Game.json", {onProgress: UnityProgress});
+      var gameInstance = UnityLoader.instantiate(
+        "gameContainer",
+        "Build/Food Fight Game.json",
+        { onProgress: UnityProgress }
+      );
     </script>
-        <!-- Bootstrap -->
-    <link href="../css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" type="text/css" href="../style.css">
 
+    <style>
+      .game-container-outer {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 2rem;
+        margin-bottom: 2rem;
+      }
+
+      .game-container-inner {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+        background: #000;
+      }
+
+      .unity-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: 0.75rem;
+        font-size: 0.9rem;
+        opacity: 0.85;
+      }
+
+      .unity-footer-left {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+      }
+
+      .unity-footer-title {
+        font-weight: 600;
+      }
+
+      .unity-footer-authors {
+        font-size: 0.85rem;
+      }
+
+      .unity-fullscreen-btn {
+        cursor: pointer;
+        padding: 0.35rem 0.75rem;
+        border-radius: 999px;
+        border: 1px solid rgba(255, 255, 255, 0.25);
+        background: rgba(0, 0, 0, 0.4);
+        font-size: 0.8rem;
+        transition: background 0.15s ease, border-color 0.15s ease;
+      }
+
+      .unity-fullscreen-btn:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: rgba(255, 255, 255, 0.5);
+      }
+
+      @media (max-width: 960px) {
+        .game-container-inner {
+          transform: scale(0.9);
+          transform-origin: top center;
+        }
+      }
+
+      @media (max-width: 800px) {
+        .game-container-inner {
+          transform: scale(0.8);
+        }
+      }
+
+      @media (max-width: 700px) {
+        .game-container-inner {
+          transform: scale(0.7);
+        }
+      }
+    </style>
   </head>
   <body>
-      <nav class="navbar navbar-inverse navbar-fixed-top">
-      <div class="container">
-        <!-- Brand and toggle get grouped for better mobile display -->
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-          <a class="navbar-brand" href="../index.html" title="Home"><span class="brandSize">Daniel</span></a>
+    <!-- Site header / nav -->
+    <header>
+      <nav class="nav">
+        <div class="nav-left">
+          <div class="nav-title">
+            <div class="nav-title-main">Daniel Thomas</div>
+            <div class="nav-title-sub">Games</div>
+          </div>
         </div>
+        <div class="nav-links">
+          <a href="../index.html">Home</a>
+          <a href="../about.html">About</a>
+          <a href="../projects.html">Projects</a>
+          <a href="../resume.html">Resume</a>
+          <a href="../games/games.html" class="active">Games</a>
+        </div>
+      </nav>
+    </header>
 
-        <!-- Collect the nav links, forms, and other content for toggling -->
-        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-          <ul class="nav navbar-nav">
-            <li><a href="../About/index.html">About</a></li>
-            <li class="active"><a href="../Projects/index.html">Projects<span class="sr-only">(current)</span></a></li>
-            <li><a href="../Resume/index.html">Resume</a></li>          </ul>
-        </div><!-- /.navbar-collapse -->
-      </div><!-- /.container-fluid -->
-    </nav>
-    <div class="webgl-content">
-      <div style="height:75px"></div>
+    <main>
+      <div class="shell">
+        <section>
+          <h1 class="section-title">FoodFight</h1>
+          <p class="section-subtitle">
+            A Unity WebGL game built by Daniel Thomas.
+          </p>
 
-      <div id="gameContainer" style="width: 889px; height: 500px"></div>
-      <div class="footer">
-        <div class="webgl-logo"></div>
-        <div class="fullscreen" onclick="gameInstance.SetFullscreen(1)"></div>
-        <div class="title">Food Fight</div>
+          <div class="game-container-outer">
+            <div class="game-container-inner">
+              <div
+                id="gameContainer"
+                style="width: 889px; height: 500px"
+              ></div>
+            </div>
+          </div>
+
+          <div class="unity-footer">
+            <div class="unity-footer-left">
+              <span class="unity-footer-title">FoodFight</span>
+              <span class="unity-footer-authors">
+                Created by: Daniel Thomas
+              </span>
+            </div>
+            <button
+              class="unity-fullscreen-btn"
+              onclick="if (gameInstance) gameInstance.SetFullscreen(1);"
+            >
+              Go Fullscreen
+            </button>
+          </div>
+        </section>
       </div>
-    </div>
+    </main>
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="../js/bootstrap.min.js"></script>
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> Daniel Thomas.</span>
+      </div>
+    </footer>
+
+    <script>
+      document.getElementById("year").textContent =
+        new Date().getFullYear();
+    </script>
   </body>
 </html>
