@@ -4,68 +4,161 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Games | Daniel Thomas</title>
+
   <link rel="stylesheet" href="../styles.css" />
+
+  <style>
+    .hero {
+      grid-template-columns: minmax(0, 1fr) !important;
+      text-align: center;
+      justify-items: center;
+      padding-top: 3rem;
+    }
+    .hero-left { align-items: center; }
+
+    .games-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .game-card {
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, #020617, #020617 60%, #020617 100%);
+      padding: 1rem;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+    }
+
+    .game-card-title {
+      color: #e5e7eb;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .game-card-tag {
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      font-size: 0.75rem;
+      color: #e5e7eb;
+      width: fit-content;
+    }
+
+    .game-card-body {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .game-card-link {
+      margin-top: 0.5rem;
+      color: var(--accent);
+      font-size: 0.8rem;
+    }
+  </style>
 </head>
+
 <body>
 
-<header>
+  <!-- NAV -->
+  <header>
     <nav class="nav">
       <div class="nav-left">
+        <div class="monogram">
+          <svg viewBox="0 0 100 100">
+            <text x="50%" y="57%" text-anchor="middle" font-size="60" fill="#fff">D</text>
+          </svg>
+        </div>
         <div class="nav-title">
           <div class="nav-title-main">Daniel Thomas</div>
           <div class="nav-title-sub">Games</div>
         </div>
       </div>
+
       <div class="nav-links">
-        <a href="../../index.html">Home</a>
-        <a href="../../about.html">About</a>
-        <a href="../../projects.html">Projects</a>
-        <a href="../../resume.html">Resume</a>
-        <a href="../games.html" class="active">Games</a>
-        <a href="../../contact.html">Contact</a>
+        <a href="../index.html">Home</a>
+        <a href="../about.html">About</a>
+        <a href="../projects.html">Projects</a>
+        <a href="../resume.html">Resume</a>
+        <a href="games.html" class="active">Games</a>
+        <a href="../contact.html">Contact</a>
       </div>
     </nav>
-</header>
+  </header>
 
-<main>
-  <div class="shell">
-    <section aria-labelledby="games-title">
-      <div class="section-header">
-        <h2 id="games-title" class="section-title">Games</h2>
-        <p class="section-subtitle">
-          Unity WebGL games built by Daniel Thomas.
+  <main>
+
+    <!-- HERO -->
+    <section class="hero shell">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <div class="eyebrow-dot"></div>
+          Unity • WebGL • Gameplay
+        </div>
+
+        <h1 class="hero-title"><span>Games</span></h1>
+
+        <p class="hero-subtitle">
+          A collection of small Unity WebGL games I’ve built for fun, learning, and experimentation.
         </p>
       </div>
+    </section>
 
-      <div class="projects-grid">
-        <a class="project-card" href="FoodFight/index.html">
-          <h3 class="project-title">FoodFight</h3>
-          <p class="project-body">A chaotic food‑throwing arena game.</p>
-        </a>
+    <!-- GAME GRID -->
+    <section class="shell">
+      <div class="games-grid">
 
-        <a class="project-card" href="FoxyBoys/index.html">
-          <h3 class="project-title">FoxyBoys</h3>
-          <p class="project-body">A platformer starring two fox brothers.</p>
-        </a>
+        <div class="game-card">
+          <div class="game-card-title">Food Fight</div>
+          <div class="game-card-tag">Unity • WebGL</div>
+          <div class="game-card-body">
+            A chaotic food‑throwing game built in Unity and deployed to WebGL.
+          </div>
+          <a class="game-card-link" href="FoodFight/index.html">Play →</a>
+        </div>
 
-        <a class="project-card" href="ShapeQuest/index.html">
-          <h3 class="project-title">ShapeQuest</h3>
-          <p class="project-body">A puzzle adventure through geometric worlds.</p>
-        </a>
+        <div class="game-card">
+          <div class="game-card-title">FoxyBoys</div>
+          <div class="game-card-tag">Unity • WebGL</div>
+          <div class="game-card-body">
+            A fast‑paced action platformer featuring foxes, enemies, and power‑ups.
+          </div>
+          <a class="game-card-link" href="FoxyBoys/index.html">Play →</a>
+        </div>
+
+        <div class="game-card">
+          <div class="game-card-title">ShapeQuest</div>
+          <div class="game-card-tag">Unity • WebGL</div>
+          <div class="game-card-body">
+            A geometric puzzle‑adventure game built to explore Unity mechanics.
+          </div>
+          <a class="game-card-link" href="ShapeQuest/index.html">Play →</a>
+        </div>
+
       </div>
     </section>
-  </div>
-</main>
 
-<footer>
-  <div class="footer-inner">
-    <span>© <span id="year"></span> Daniel Thomas.</span>
-  </div>
-</footer>
+  </main>
 
-<script>
-  document.getElementById("year").textContent = new Date().getFullYear();
-</script>
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span>© <span id="year"></span> Daniel Thomas.</span>
+      <div class="footer-links">
+        <a href="../index.html">Home</a>
+        <a href="../contact.html">Contact</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 
 </body>
 </html>
