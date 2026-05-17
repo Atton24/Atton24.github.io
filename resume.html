@@ -4,111 +4,196 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Resume | Daniel Thomas</title>
+
   <link rel="stylesheet" href="styles.css" />
+
+  <style>
+    /* Single-column hero */
+    .hero {
+      grid-template-columns: minmax(0, 1fr) !important;
+      text-align: center;
+      justify-items: center;
+      padding-top: 4rem;
+    }
+    .hero-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    /* Resume sections */
+    .resume-section {
+      margin-top: 3rem;
+      display: grid;
+      gap: 2rem;
+    }
+
+    .resume-heading {
+      font-size: 1.3rem;
+      font-weight: 600;
+      color: #e5e7eb;
+      margin-bottom: 0.5rem;
+    }
+
+    .resume-card {
+      border-radius: 20px;
+      border: 1px solid var(--border-subtle);
+      background: radial-gradient(circle at top, #020617, #020617 60%, #020617 100%);
+      padding: 1.4rem;
+      box-shadow: 0 14px 30px rgba(15,23,42,0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+
+    .resume-card-title {
+      color: #e5e7eb;
+      font-size: 1.05rem;
+      font-weight: 600;
+    }
+
+    .resume-card-sub {
+      color: var(--muted);
+      font-size: 0.85rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .resume-card-body {
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 0.9rem;
+    }
+
+    /* Skills pills */
+    .skills-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .skill-pill {
+      padding: 0.3rem 0.75rem;
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.6);
+      font-size: 0.8rem;
+      color: #e5e7eb;
+      background: rgba(15,23,42,0.6);
+    }
+  </style>
 </head>
+
 <body>
+
+  <!-- NAV -->
   <header>
     <nav class="nav">
       <div class="nav-left">
+        <div class="monogram">
+          <svg viewBox="0 0 100 100">
+            <text x="50%" y="57%" text-anchor="middle" font-size="60" fill="#fff">D</text>
+          </svg>
+        </div>
         <div class="nav-title">
           <div class="nav-title-main">Daniel Thomas</div>
-          <div class="nav-title-sub">Games</div>
+          <div class="nav-title-sub">Resume</div>
         </div>
       </div>
+
       <div class="nav-links">
-        <a href="../index.html">Home</a>
-        <a href="../about.html">About</a>
-        <a href="../projects.html">Projects</a>
-        <a href="../resume.html">Resume</a>
-        <a href="../games/games.html">Games</a>
-        <a href="../contact.html">Contact</a>
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Projects</a>
+        <a href="resume.html" class="active">Resume</a>
+        <a href="games/games.html">Games</a>
+        <a href="contact.html">Contact</a>
       </div>
     </nav>
   </header>
 
   <main>
-    <div class="shell">
-      <section aria-labelledby="resume-title">
-        <div class="section-header">
-          <h2 id="resume-title" class="section-title">Resume</h2>
-          <p class="section-subtitle">
-            Full experience, skills, and education—mirroring my current resume.
-          </p>
+
+    <!-- HERO -->
+    <section class="hero shell">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <div class="eyebrow-dot"></div>
+          EXPERIENCE • SKILLS • EDUCATION
         </div>
 
-        <div class="resume-grid">
-          <div>
-            <div class="resume-section-title">Professional experience</div>
+        <h1 class="hero-title"><span>Resume</span></h1>
 
-            <div class="resume-item">
-              <div class="resume-item-title">IT Systems &amp; Operations Lead (IT Workplace Manager)</div>
-              <div class="resume-item-meta">Luxer One • McClellan, California • Nov 2022 – Present</div>
-              <ul class="resume-bullets">
-                <li>Engineered zero‑touch provisioning and automated device onboarding, improving efficiency by 99% and eliminating manual setup.</li>
-                <li>Own IT operations for 350+ employees and 500+ devices across infrastructure, networking, identity, and endpoint systems.</li>
-                <li>Strengthened security with password policies, endpoint encryption, and application approval workflows.</li>
-                <li>Automated user lifecycle workflows using SAML 2.0, APIs, and webhooks, reducing manual HRIS/SSO/ITSM work.</li>
-                <li>Deployed and managed 120+ Mac/iOS apps; led MDM migrations (Meraki → Jamf → Intune) to improve compliance and automation.</li>
-                <li>Led multisite network upgrades, replacing UniFi with Meraki/Cisco and eliminating unmanaged hardware.</li>
-                <li>Managed SSO integrations for Jamf, Meraki SM, Rhombus, Openpath, Slack, Zoom, NICE InContact, Yodeck, Jira, and others.</li>
-                <li>Negotiated SaaS and infrastructure contracts (Jamf, Meraki, Miro, RingCentral, Google), reducing costs and improving vendor alignment.</li>
-              </ul>
-            </div>
+        <p class="hero-subtitle">
+          A snapshot of my professional experience, technical skills, and academic background.
+        </p>
+      </div>
+    </section>
 
-            <div class="resume-item">
-              <div class="resume-item-title">IT Support &amp; Systems Administrator (Help Desk Admin)</div>
-              <div class="resume-item-meta">Luxer One • McClellan, California • Apr 2021 – Nov 2022</div>
-              <ul class="resume-bullets">
-                <li>Managed internal networks supporting 500+ devices per site, ensuring stable performance.</li>
-                <li>Implemented a companywide IT ticketing system, improving resolution times and support visibility.</li>
-                <li>Administered Google Workspace, Zoho One, and internal tools for 350+ employees.</li>
-                <li>Oversaw VoIP systems for 200+ users, ensuring reliable communication.</li>
-                <li>Owned IT asset lifecycle management from procurement through decommissioning.</li>
-              </ul>
-            </div>
+    <!-- RESUME CONTENT -->
+    <section class="shell resume-section">
 
-            <div class="resume-item">
-              <div class="resume-item-title">IT Support Technician (Technical Support Representative)</div>
-              <div class="resume-item-meta">Luxer One • McClellan, California • Aug 2020 – Apr 2021</div>
-              <ul class="resume-bullets">
-                <li>Delivered remote troubleshooting for hardware, network, and software issues.</li>
-                <li>Communicated technical concepts to both technical and nontechnical users.</li>
-                <li>Documented and managed support cases within an ITSM system.</li>
-              </ul>
-            </div>
-          </div>
+      <!-- EXPERIENCE -->
+      <div>
+        <div class="resume-heading">Experience</div>
 
-          <div>
-            <div class="resume-section-title">Technical skills</div>
-            <div class="resume-item">
-              <ul class="resume-bullets">
-                <li><strong>Infrastructure:</strong> Windows Server, Hyper‑V</li>
-                <li><strong>Networking:</strong> Meraki, Cisco, Firewalls, VLANs, Wireless</li>
-                <li><strong>Identity:</strong> Google Workspace Admin, SAML 2.0, SSO</li>
-                <li><strong>Endpoint Management:</strong> Jamf, Apple Business Manager, Meraki SM, Intune</li>
-                <li><strong>Automation:</strong> APIs, Webhooks, Workflow Automation</li>
-                <li><strong>SaaS:</strong> Zoho One, Google Workspace, Slack, Zoom, Jira</li>
-                <li><strong>Operations:</strong> ITSM, Asset Lifecycle, Vendor Management, ZeroTouch Provisioning, ITIL4 Foundation</li>
-              </ul>
-            </div>
-
-            <div class="resume-section-title">Education</div>
-            <div class="resume-item">
-              <div class="resume-item-title">University of Nevada, Reno</div>
-              <div class="resume-item-meta">Bachelor of Science, Computer Science and Engineering</div>
-              <div class="resume-item-meta">Minor: Mathematics</div>
-            </div>
+        <div class="resume-card">
+          <div class="resume-card-title">IT Systems & Operations Lead</div>
+          <div class="resume-card-sub">Luxer One • 2020–Present</div>
+          <div class="resume-card-body">
+            Leading systems operations, infrastructure improvements, automation pipelines, and enterprise‑level support for a nationwide smart‑locker platform.
           </div>
         </div>
-      </section>
-    </div>
+
+        <div class="resume-card">
+          <div class="resume-card-title">Systems Technician</div>
+          <div class="resume-card-sub">Previous Role</div>
+          <div class="resume-card-body">
+            Supported enterprise systems, managed deployments, and contributed to internal tooling and process optimization.
+          </div>
+        </div>
+      </div>
+
+      <!-- SKILLS -->
+      <div>
+        <div class="resume-heading">Skills</div>
+
+        <div class="skills-grid">
+          <div class="skill-pill">Systems Administration</div>
+          <div class="skill-pill">Infrastructure</div>
+          <div class="skill-pill">Automation</div>
+          <div class="skill-pill">Unity / C#</div>
+          <div class="skill-pill">Web Development</div>
+          <div class="skill-pill">Networking</div>
+          <div class="skill-pill">Scripting</div>
+          <div class="skill-pill">Troubleshooting</div>
+        </div>
+      </div>
+
+      <!-- EDUCATION -->
+      <div>
+        <div class="resume-heading">Education</div>
+
+        <div class="resume-card">
+          <div class="resume-card-title">B.S. Computer Science</div>
+          <div class="resume-card-sub">University of Nevada, Reno</div>
+          <div class="resume-card-body">
+            Minor in Mathematics. Focused on software engineering, algorithms, and systems design.
+          </div>
+        </div>
+      </div>
+
+    </section>
+
   </main>
 
+  <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
       <span>© <span id="year"></span> Daniel Thomas.</span>
       <div class="footer-links">
         <a href="index.html">Home</a>
+        <a href="contact.html">Contact</a>
       </div>
     </div>
   </footer>
@@ -116,5 +201,6 @@
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
+
 </body>
 </html>
