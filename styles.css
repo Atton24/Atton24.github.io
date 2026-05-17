@@ -540,9 +540,8 @@ footer {
 .nav-mobile-menu a:hover,
 .nav-mobile-menu a.active { color: #e5e7eb; }
 
-.nav-mobile-menu.is-open { display: flex; }
-
 @media (max-width: 880px) {
   .nav-hamburger { display: flex; }
   .nav-links { display: none !important; }
+  .nav-mobile-menu.is-open { display: flex; }
 }
