@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Games | Daniel Thomas</title>
+  <link rel="stylesheet" href="../styles.css" />
+</head>
+<body>
+
+<header>
+  <nav class="nav">
+    <div class="nav-left">
+      <div class="nav-title">
+        <div class="nav-title-main">Daniel Thomas</div>
+        <div class="nav-title-sub">Games</div>
+      </div>
+    </div>
+    <div class="nav-links">
+      <a href="../index.html">Home</a>
+      <a href="../about.html">About</a>
+      <a href="../projects.html">Projects</a>
+      <a href="../resume.html">Resume</a>
+      <a href="games.html" class="active">Games</a>
+    </div>
+  </nav>
+</header>
+
+<main>
+  <div class="shell">
+    <section aria-labelledby="games-title">
+      <div class="section-header">
+        <h2 id="games-title" class="section-title">Games</h2>
+        <p class="section-subtitle">
+          Unity WebGL games built by Daniel Thomas.
+        </p>
+      </div>
+
+      <div class="projects-grid">
+        <a class="project-card" href="foodfight.html">
+          <h3 class="project-title">FoodFight</h3>
+          <p class="project-body">A chaotic food‑throwing arena game.</p>
+        </a>
+
+        <a class="project-card" href="foxyboys.html">
+          <h3 class="project-title">FoxyBoys</h3>
+          <p class="project-body">A platformer starring two fox brothers.</p>
+        </a>
+
+        <a class="project-card" href="shapequest.html">
+          <h3 class="project-title">ShapeQuest</h3>
+          <p class="project-body">A puzzle adventure through geometric worlds.</p>
+        </a>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <span>© <span id="year"></span> Daniel Thomas.</span>
+  </div>
+</footer>
+
+<script>
+  document.getElementById("year").textContent = new Date().getFullYear();
+</script>
+
+</body>
+</html>
