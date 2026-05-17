@@ -14,7 +14,7 @@
   <script>
     var gameInstance = UnityLoader.instantiate(
       "gameContainer",
-      "Build/FoxyBoys.json",
+      "Build/Desktop.json",
       { onProgress: UnityProgress }
     );
   </script>
@@ -62,6 +62,7 @@
 
 <body>
 
+  <!-- NAV -->
   <header>
     <nav class="nav">
       <div class="nav-left">
@@ -89,6 +90,7 @@
 
   <main>
 
+    <!-- HERO -->
     <section class="hero shell">
       <div class="hero-left">
         <div class="eyebrow">
@@ -104,10 +106,11 @@
       </div>
     </section>
 
+    <!-- GAME -->
     <section class="shell">
       <div class="game-container-outer">
         <div class="game-container-inner">
-          <div id="gameContainer" style="width: 889px; height: 500px;"></div>
+          <div id="gameContainer" style="width: 800px; height: 500px;"></div>
         </div>
       </div>
 
@@ -125,6 +128,7 @@
 
   </main>
 
+  <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
       <span>© <span id="year"></span> Daniel Thomas.</span>
