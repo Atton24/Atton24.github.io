@@ -579,3 +579,22 @@ footer {
   .nav-links { display: none !important; }
   .nav-mobile-menu.is-open { display: flex; }
 }
+/* ───────────────────────────────────────────── */
+/* Single‑hero centered layout */
+/* ───────────────────────────────────────────── */
+
+.hero--single {
+  grid-template-columns: minmax(0, 1fr);
+  justify-items: center;
+  text-align: center;
+}
+
+.hero--single .hero-left {
+  align-items: center;
+}
+
+.hero--single .eyebrow {
+  margin-left: 0;
+  left: auto;
+  transform: none;
+}
