@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Contact | Daniel Thomas</title>
+
+  <!-- Site Styles -->
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+  <!-- Header / Navigation -->
+  <header>
+    <nav class="nav">
+      <div class="nav-left">
+        <div class="nav-title">
+          <div class="nav-title-main">Daniel Thomas</div>
+          <div class="nav-title-sub">Contact</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="index.html">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Projects</a>
+        <a href="resume.html">Resume</a>
+        <a href="games/games.html">Games</a>
+        <a href="contact.html" class="active">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <main>
+    <div class="shell">
+      <section>
+        <h1 class="section-title">Contact Me</h1>
+        <p class="section-subtitle">
+          Have a question, collaboration idea, or just want to say hello?  
+          Send me a message below.
+        </p>
+
+        <!-- Contact Form -->
+        <form 
+          action="https://formsubmit.co/YOUR_EMAIL_HERE" 
+          method="POST" 
+          class="contact-form"
+        >
+          <!-- FormSubmit settings -->
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_template" value="table">
+
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" required />
+
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" required />
+
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="6" required></textarea>
+
+          <button type="submit" class="button-primary">Send Message</button>
+        </form>
+      </section>
+    </div>
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+      <span>© <span id="year"></span> Daniel Thomas.</span>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
