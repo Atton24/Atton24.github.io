@@ -182,5 +182,20 @@
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 
+    <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Hamburger
+    const btn = document.querySelector('.nav-hamburger');
+    const menu = document.querySelector('.nav-mobile-menu');
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !open);
+      menu.setAttribute('aria-hidden', open);
+      btn.classList.toggle('is-open', !open);
+      menu.classList.toggle('is-open', !open);
+    });
+  </script>
+  
 </body>
 </html>
