@@ -230,6 +230,7 @@ section {
 
 .eyebrow-dot {
   animation: eyebrowPulse 1.8s ease-in-out infinite;
+  box-shadow: 0 0 6px var(--accent);
 }
 
 @keyframes eyebrowPulse {
