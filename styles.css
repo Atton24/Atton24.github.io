@@ -182,13 +182,13 @@ section {
   grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
   gap: 2.5rem;
   align-items: center;
-  padding-top: 2.5rem;
+  padding-top: 3rem;
 }
 
 .hero-left {
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 1.25rem;
 }
 
 .eyebrow {
