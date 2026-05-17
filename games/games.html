@@ -12,9 +12,7 @@
       grid-template-columns: minmax(0, 1fr) !important;
       text-align: center;
       justify-items: center;
-      padding-top: 3rem;
     }
-    .hero-left { align-items: center; }
 
     .games-grid {
       display: grid;
@@ -83,19 +81,8 @@
         <a href="games.html" class="active">Games</a>
         <a href="../contact.html">Contact</a>
       </div>
-      <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
-        <span></span><span></span><span></span>
-      </button>
     </nav>
   </header>
-    <div class="nav-mobile-menu" aria-hidden="true">
-      <a href="../index.html">Home</a>
-      <a href="../about.html">About</a>
-      <a href="../projects.html">Projects</a>
-      <a href="../resume.html">Resume</a>
-      <a href="games.html" class="active">Games</a>
-      <a href="../contact.html">Contact</a>
-    </div>
 
   <main>
 
@@ -164,17 +151,6 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
-
-    // Hamburger
-    const btn = document.querySelector('.nav-hamburger');
-    const menu = document.querySelector('.nav-mobile-menu');
-    btn.addEventListener('click', () => {
-      const open = btn.getAttribute('aria-expanded') === 'true';
-      btn.setAttribute('aria-expanded', !open);
-      menu.setAttribute('aria-hidden', open);
-      btn.classList.toggle('is-open', !open);
-      menu.classList.toggle('is-open', !open);
-    });
   </script>
 
 </body>
