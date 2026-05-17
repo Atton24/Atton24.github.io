@@ -8,7 +8,6 @@
   <link rel="stylesheet" href="styles.css" />
 
   <style>
-    /* Two-column hero layout */
     .hero {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -23,241 +22,20 @@
       gap: 1rem;
     }
 
-    /* LIQUID WOBBLE SHAPE */
     .hero-right {
       width: 100%;
       min-height: 340px;
-    
-      /* MUCH more organic shape */
-      border-radius: 60% 40% 65% 35% / 35% 65% 40% 60%;
-    
-      background: linear-gradient(135deg, #0ea5e9, #22c55e);
-      background-size: 200% 200%;
-      animation: gradientShift 8s ease infinite, wobble 10s ease-in-out infinite;
-    
-      box-shadow: 0 25px 55px rgba(15,23,42,0.75);
-    }
-
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    @keyframes wobble {
-      0%   { border-radius: 60% 40% 65% 35% / 35% 65% 40% 60%; }
-      33%  { border-radius: 50% 60% 40% 70% / 60% 40% 70% 30%; }
-      66%  { border-radius: 70% 30% 55% 45% / 45% 55% 30% 70%; }
-      100% { border-radius: 60% 40% 65% 35% / 35% 65% 40% 60%; }
-    }
-
-
-    /* About content */
-    .about-section {
-      margin-top: 3rem;
-      display: grid;
-      gap: 2rem;
-      line-height: 1.7;
-      color: var(--muted);
-      font-size: 1rem;
-    }
-
-    .about-heading {
-      font-size: 1.3rem;
-      font-weight: 600;
-      color: #e5e7eb;
-      margin-bottom: 0.5rem;
-    }
-
-    .about-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.4rem;
-      margin-top: 1rem;
-    }
-
-    .about-card {
-      border-radius: 20px;
-      border: 1px solid var(--border-subtle);
-      background: radial-gradient(circle at top, #020617, #020617 60%, #020617 100%);
-      padding: 1.4rem;
-      box-shadow: 0 14px 30px rgba(15,23,42,0.9);
       display: flex;
-      flex-direction: column;
-      gap: 0.7rem;
-    }
-
-    .about-card-title {
-      color: #e5e7eb;
-      font-size: 1rem;
-      font-weight: 600;
-    }
-
-    .about-card-body {
-      color: var(--muted);
-      font-size: 0.9rem;
-      line-height: 1.55;
-    }
-
-    @media (max-width: 880px) {
-      .hero {
-        grid-template-columns: 1fr;
-        text-align: center;
-      }
-      .hero-right {
-        margin-top: 1.5rem;
-        height: 260px;
-      }
-    }
-  </style>
-</head>
-
-<body>
-
-  <!-- NAV -->
-  <header>
-    <nav class="nav">
-      <div class="nav-left">
-        <div class="nav-title">
-          <div class="nav-title-main">Daniel Thomas</div>
-          <div class="nav-title-sub">About</div>
-        </div>
-      </div>
-
-      <div class="nav-links">
-        <a href="index.html">Home</a>
-        <a href="about.html" class="active">About</a>
-        <a href="projects.html">Projects</a>
-        <a href="resume.html">Resume</a>
-        <a href="games/games.html">Games</a>
-        <a href="contact.html">Contact</a>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-
-    <!-- HERO -->
-    <section class="hero shell">
-      <div class="hero-left">
-        <div class="eyebrow">
-          <div class="eyebrow-dot"></div>
-          SYSTEMS • DESIGN • DEVELOPMENT
-        </div>
-
-        <h1 class="hero-title"><span>About Me</span></h1>
-
-        <p class="hero-subtitle">
-          IT professional, systems engineer, and creative developer based in California — blending technical depth with clean, modern design.
-        </p>
-      </div>
-
-      <div class="hero-right"></div>
-    </section>
-
-    <!-- ABOUT CONTENT -->
-    <section class="shell about-section">
-
-      <div>
-        <div class="about-heading">Who I Am</div>
-        <p>
-          I’m Daniel Thomas — an IT Systems & Operations Lead with a background in computer science, mathematics, and creative development.  
-          I specialize in building reliable systems, solving complex infrastructure challenges, and designing clean, modern digital experiences.
-        </p>
-      </div>
-
-      <div>
-        <div class="about-heading">What I Do</div>
-        <div class="about-grid">
-
-          <div class="about-card">
-            <div class="about-card-title">Systems & Infrastructure</div>
-            <div class="about-card-body">
-              Managing and optimizing enterprise systems, automation pipelines, and mission‑critical infrastructure.
-            </div>
-          </div>
-
-          <div class="about-card">
-            <div class="about-card-title">Software & Game Development</div>
-            <div class="about-card-body">
-              Building Unity WebGL games, interactive experiences, and custom tools for experimentation and learning.
-            </div>
-          </div>
-
-          <div class="about-card">
-            <div class="about-card-title">Design & Web</div>
-            <div class="about-card-body">
-              Crafting modern, minimalist interfaces with a focus on clarity, motion, and visual identity.
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-    </section>
-
-  </main>
-
-  <!-- FOOTER -->
-  <footer>
-    <div class="footer-inner">
-      <span>© <span id="year"></span> Daniel Thomas.</span>
-      <div class="footer-links">
-        <a href="index.html">Home</a>
-        <a href="contact.html">Contact</a>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
-
-</body>
-</html>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>About | Daniel Thomas</title>
-
-  <link rel="stylesheet" href="styles.css" />
-
-  <style>
-    /* Two-column hero layout */
-    .hero {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
       align-items: center;
-      gap: 2rem;
-      padding-top: 4rem;
+      justify-content: center;
     }
 
-    .hero-left {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    /* Animated gradient panel (Option 5) */
-    .hero-right {
+    .blob-svg {
       width: 100%;
-      min-height: 320px;
-      border-radius: var(--radius-lg);
-      background: linear-gradient(135deg, #0ea5e9, #22c55e);
-      background-size: 200% 200%;
-      animation: gradientShift 8s ease infinite;
-      box-shadow: 0 18px 45px rgba(15,23,42,0.75);
+      max-width: 360px;
+      overflow: visible;
     }
 
-    @keyframes gradientShift {
-      0% { background-position: 0% 50%; }
-      50% { background-position: 100% 50%; }
-      100% { background-position: 0% 50%; }
-    }
-
-    /* About content */
     .about-section {
       margin-top: 3rem;
       display: grid;
@@ -311,7 +89,10 @@
       }
       .hero-right {
         margin-top: 1.5rem;
-        height: 260px;
+        min-height: 280px;
+      }
+      .blob-svg {
+        max-width: 280px;
       }
     }
   </style>
@@ -357,7 +138,42 @@
         </p>
       </div>
 
-      <div class="hero-right"></div>
+      <div class="hero-right">
+        <svg class="blob-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <radialGradient id="blobG1" cx="38%" cy="32%" r="70%">
+              <stop offset="0%" stop-color="#7dd3fc"/>
+              <stop offset="40%" stop-color="#0ea5e9"/>
+              <stop offset="100%" stop-color="#065f46"/>
+            </radialGradient>
+            <radialGradient id="blobG2" cx="65%" cy="68%" r="60%">
+              <stop offset="0%" stop-color="#4ade80" stop-opacity="0.85"/>
+              <stop offset="100%" stop-color="#0284c7" stop-opacity="0"/>
+            </radialGradient>
+            <filter id="blobGoo">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feColorMatrix in="blur" mode="matrix"
+                values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo"/>
+              <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+            </filter>
+            <filter id="blobOrbBlur">
+              <feGaussianBlur stdDeviation="8"/>
+            </filter>
+          </defs>
+
+          <g filter="url(#blobGoo)">
+            <path id="blobMain" fill="url(#blobG1)"/>
+            <circle id="blobDrip1" r="38" fill="#0ea5e9"/>
+            <circle id="blobDrip2" r="26" fill="#0ea5e9"/>
+            <circle id="blobDrip3" r="20" fill="#22c55e"/>
+            <circle id="blobDrip4" r="15" fill="#0ea5e9"/>
+          </g>
+
+          <path id="blobSheen" fill="url(#blobG2)" opacity="0.6"/>
+          <circle id="blobOrb1" r="22" fill="rgba(125,211,252,0.3)" filter="url(#blobOrbBlur)"/>
+          <circle id="blobOrb2" r="14" fill="rgba(74,222,128,0.35)" filter="url(#blobOrbBlur)"/>
+        </svg>
+      </div>
     </section>
 
     <!-- ABOUT CONTENT -->
@@ -366,7 +182,7 @@
       <div>
         <div class="about-heading">Who I Am</div>
         <p>
-          I’m Daniel Thomas — an IT Systems & Operations Lead with a background in computer science, mathematics, and creative development.  
+          I'm Daniel Thomas — an IT Systems &amp; Operations Lead with a background in computer science, mathematics, and creative development.
           I specialize in building reliable systems, solving complex infrastructure challenges, and designing clean, modern digital experiences.
         </p>
       </div>
@@ -376,21 +192,21 @@
         <div class="about-grid">
 
           <div class="about-card">
-            <div class="about-card-title">Systems & Infrastructure</div>
+            <div class="about-card-title">Systems &amp; Infrastructure</div>
             <div class="about-card-body">
               Managing and optimizing enterprise systems, automation pipelines, and mission‑critical infrastructure.
             </div>
           </div>
 
           <div class="about-card">
-            <div class="about-card-title">Software & Game Development</div>
+            <div class="about-card-title">Software &amp; Game Development</div>
             <div class="about-card-body">
               Building Unity WebGL games, interactive experiences, and custom tools for experimentation and learning.
             </div>
           </div>
 
           <div class="about-card">
-            <div class="about-card-title">Design & Web</div>
+            <div class="about-card-title">Design &amp; Web</div>
             <div class="about-card-body">
               Crafting modern, minimalist interfaces with a focus on clarity, motion, and visual identity.
             </div>
@@ -416,6 +232,87 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    (function () {
+      const cx = 160, cy = 158;
+      const N = 12;
+      const baseRadii = [100, 88, 108, 82, 112, 86, 104, 90, 110, 84, 106, 92];
+      const speeds    = [0.5, 0.9, 0.65, 1.1, 0.55, 0.95, 0.7, 1.05, 0.6, 0.85, 0.75, 1.0];
+      const amps      = [16,  12,  20,   10,  22,   13,   18,  11,   21,  14,   17,   12];
+      const phases    = Array.from({length: N}, (_, i) => (i / N) * Math.PI * 2);
+
+      function catmullRom(pts) {
+        const n = pts.length;
+        const w = i => pts[(i + n) % n];
+        let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+        for (let i = 0; i < n; i++) {
+          const p0 = w(i-1), p1 = w(i), p2 = w(i+1), p3 = w(i+2);
+          const a = 0.5;
+          const t01 = Math.pow(Math.hypot(p1.x-p0.x, p1.y-p0.y), a);
+          const t12 = Math.pow(Math.hypot(p2.x-p1.x, p2.y-p1.y), a);
+          const t23 = Math.pow(Math.hypot(p3.x-p2.x, p3.y-p2.y), a);
+          const safe = v => Math.max(v, 0.001);
+          const m1x = p2.x - p1.x + t12 * ((p1.x-p0.x)/safe(t01) - (p2.x-p0.x)/safe(t01+t12));
+          const m1y = p2.y - p1.y + t12 * ((p1.y-p0.y)/safe(t01) - (p2.y-p0.y)/safe(t01+t12));
+          const m2x = p2.x - p1.x + t12 * ((p3.x-p2.x)/safe(t23) - (p3.x-p1.x)/safe(t12+t23));
+          const m2y = p2.y - p1.y + t12 * ((p3.y-p2.y)/safe(t23) - (p3.y-p1.y)/safe(t12+t23));
+          d += ` C ${(p1.x+m1x/3).toFixed(2)} ${(p1.y+m1y/3).toFixed(2)}, ${(p2.x-m2x/3).toFixed(2)} ${(p2.y-m2y/3).toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+        }
+        return d + ' Z';
+      }
+
+      function getPoints(t) {
+        return Array.from({length: N}, (_, i) => {
+          const angle = (i / N) * Math.PI * 2 - Math.PI / 2;
+          const r = baseRadii[i]
+            + Math.sin(t * speeds[i] + phases[i]) * amps[i]
+            + Math.sin(t * speeds[i] * 0.41 + phases[i] * 1.7) * (amps[i] * 0.5)
+            + Math.sin(t * speeds[i] * 0.17 + phases[i] * 0.6) * (amps[i] * 0.25);
+          return { x: cx + Math.cos(angle) * r, y: cy + Math.sin(angle) * r };
+        });
+      }
+
+      const blobMain  = document.getElementById('blobMain');
+      const blobSheen = document.getElementById('blobSheen');
+      const drip1 = document.getElementById('blobDrip1');
+      const drip2 = document.getElementById('blobDrip2');
+      const drip3 = document.getElementById('blobDrip3');
+      const drip4 = document.getElementById('blobDrip4');
+      const orb1  = document.getElementById('blobOrb1');
+      const orb2  = document.getElementById('blobOrb2');
+      const g1    = document.getElementById('blobG1');
+
+      let start = null;
+      function frame(ts) {
+        if (!start) start = ts;
+        const t = (ts - start) / 1000;
+
+        const d = catmullRom(getPoints(t));
+        blobMain.setAttribute('d', d);
+        blobSheen.setAttribute('d', d);
+
+        drip1.setAttribute('cx', cx + Math.sin(t * 0.38) * 52);
+        drip1.setAttribute('cy', cy + Math.cos(t * 0.31) * 44);
+        drip2.setAttribute('cx', cx + Math.cos(t * 0.52 + 1.1) * 68);
+        drip2.setAttribute('cy', cy + Math.sin(t * 0.44 + 0.7) * 58);
+        drip3.setAttribute('cx', cx + Math.sin(t * 0.61 + 2.3) * 72);
+        drip3.setAttribute('cy', cy + Math.cos(t * 0.48 + 1.9) * 62);
+        drip4.setAttribute('cx', cx + Math.cos(t * 0.29 + 3.1) * 80);
+        drip4.setAttribute('cy', cy + Math.sin(t * 0.37 + 2.5) * 70);
+
+        orb1.setAttribute('cx', cx + Math.sin(t * 0.35 + 0.5) * 30);
+        orb1.setAttribute('cy', cy + Math.cos(t * 0.27 + 0.8) * 25);
+        orb2.setAttribute('cx', cx + Math.cos(t * 0.55 + 1.8) * 42);
+        orb2.setAttribute('cy', cy + Math.sin(t * 0.43 + 1.2) * 36);
+
+        const hueShift = Math.sin(t * 0.18) * 15;
+        g1.querySelector('stop').setAttribute('stop-color',
+          `hsl(${200 + hueShift}, 90%, 73%)`);
+
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
   </script>
 
 </body>
