@@ -5,6 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Daniel Thomas | IT Systems & Operations</title>
   <link rel="stylesheet" href="styles.css" />
+  <style>
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+      gap: 2.5rem;
+      align-items: center;
+      padding-top: 2.5rem;
+    }
+    .hero-right {
+      width: 100%;
+      min-height: 340px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .blob-svg {
+      width: 100%;
+      max-width: 360px;
+      overflow: visible;
+    }
+    @media (max-width: 880px) {
+      .hero { grid-template-columns: minmax(0, 1fr); }
+      .hero-right { min-height: 260px; }
+      .blob-svg { max-width: 260px; }
+    }
+  </style>
 </head>
 <body>
   <header>
@@ -16,14 +42,25 @@
         </div>
       </div>
       <div class="nav-links">
-        <a href="../index.html">Home</a>
-        <a href="../about.html">About</a>
-        <a href="../projects.html">Projects</a>
-        <a href="../resume.html">Resume</a>
-        <a href="../games/games.html">Games</a>
-        <a href="../contact.html">Contact</a>
+        <a href="index.html" class="active">Home</a>
+        <a href="about.html">About</a>
+        <a href="projects.html">Projects</a>
+        <a href="resume.html">Resume</a>
+        <a href="games/games.html">Games</a>
+        <a href="contact.html">Contact</a>
       </div>
+      <button class="nav-hamburger" aria-label="Open menu" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
     </nav>
+    <div class="nav-mobile-menu" aria-hidden="true">
+      <a href="index.html">Home</a>
+      <a href="about.html">About</a>
+      <a href="projects.html">Projects</a>
+      <a href="resume.html">Resume</a>
+      <a href="games/games.html">Games</a>
+      <a href="contact.html">Contact</a>
+    </div>
   </header>
 
   <main>
@@ -38,33 +75,55 @@
             I keep <span>infrastructure, identity, and devices</span> running smoothly at scale.
           </h1>
           <p class="hero-subtitle">
-            I’m Daniel Thomas, an <strong>IT Systems &amp; Operations Lead</strong> specializing in
+            I'm Daniel Thomas, an <strong>IT Systems &amp; Operations Lead</strong> specializing in
             <strong>zero‑touch provisioning, automation, identity, and endpoint management</strong>.
             I run the systems that 350+ employees rely on every day—quietly, reliably, and with a bias toward automation.
           </p>
           <div class="hero-actions">
-            <a href="projects.html" class="btn-primary">
-              View selected work
-            </a>
-            <a href="resume.html" class="btn-ghost">
-              View full resume
-            </a>
+            <a href="projects.html" class="btn-primary">View selected work</a>
+            <a href="resume.html" class="btn-ghost">View full resume</a>
           </div>
         </div>
 
         <div class="hero-right" aria-hidden="true">
-          <!-- Simple wave card reused from earlier design, or keep this area empty if you prefer -->
+          <svg class="blob-svg" viewBox="0 0 320 320" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <radialGradient id="hG1" cx="42%" cy="28%" r="72%">
+                <stop offset="0%" stop-color="#93c5fd"/>
+                <stop offset="38%" stop-color="#3b82f6"/>
+                <stop offset="100%" stop-color="#14532d"/>
+              </radialGradient>
+              <radialGradient id="hG2" cx="62%" cy="72%" r="58%">
+                <stop offset="0%" stop-color="#34d399" stop-opacity="0.9"/>
+                <stop offset="100%" stop-color="#1d4ed8" stop-opacity="0"/>
+              </radialGradient>
+              <filter id="hGoo">
+                <feGaussianBlur stdDeviation="6" result="blur"/>
+                <feColorMatrix in="blur" mode="matrix"
+                  values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10" result="goo"/>
+                <feComposite in="SourceGraphic" in2="goo" operator="atop"/>
+              </filter>
+              <filter id="hOrbBlur"><feGaussianBlur stdDeviation="8"/></filter>
+            </defs>
+            <g filter="url(#hGoo)">
+              <path id="hBlobMain" fill="url(#hG1)"/>
+              <circle id="hDrip1" r="40" fill="#3b82f6"/>
+              <circle id="hDrip2" r="24" fill="#3b82f6"/>
+              <circle id="hDrip3" r="19" fill="#10b981"/>
+              <circle id="hDrip4" r="14" fill="#3b82f6"/>
+            </g>
+            <path id="hBlobSheen" fill="url(#hG2)" opacity="0.6"/>
+            <circle id="hOrb1" r="24" fill="rgba(147,197,253,0.3)" filter="url(#hOrbBlur)"/>
+            <circle id="hOrb2" r="15" fill="rgba(52,211,153,0.35)" filter="url(#hOrbBlur)"/>
+          </svg>
         </div>
       </section>
 
       <section aria-labelledby="home-summary-title">
         <div class="section-header">
           <h2 id="home-summary-title" class="section-title">Snapshot</h2>
-          <p class="section-subtitle">
-            A quick overview of what I do and where I focus my time.
-          </p>
+          <p class="section-subtitle">A quick overview of what I do and where I focus my time.</p>
         </div>
-
         <div class="about-grid">
           <div class="about-text">
             <p>
@@ -72,7 +131,7 @@
               networking, identity, and endpoint systems for 350+ employees and 500+ devices.
             </p>
             <p>
-              I’ve engineered <span class="about-highlight">zero‑touch provisioning and automated onboarding</span> that improved efficiency by 99%,
+              I've engineered <span class="about-highlight">zero‑touch provisioning and automated onboarding</span> that improved efficiency by 99%,
               led <span class="about-highlight">MDM migrations</span> (Meraki → Jamf → Intune), and driven
               <span class="about-highlight">multisite network upgrades</span> from UniFi to Meraki/Cisco.
             </p>
@@ -97,9 +156,7 @@
             </div>
             <div class="about-meta-item">
               <div class="about-meta-label">Outside of work</div>
-              <div class="about-meta-value">
-                Game servers, clean UI experiments, and wave‑inspired design systems.
-              </div>
+              <div class="about-meta-value">Game servers, clean UI experiments, and wave‑inspired design systems.</div>
             </div>
           </div>
         </div>
@@ -119,6 +176,71 @@
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Hamburger
+    const btn = document.querySelector('.nav-hamburger');
+    const menu = document.querySelector('.nav-mobile-menu');
+    btn.addEventListener('click', () => {
+      const open = btn.getAttribute('aria-expanded') === 'true';
+      btn.setAttribute('aria-expanded', !open);
+      menu.setAttribute('aria-hidden', open);
+      btn.classList.toggle('is-open', !open);
+      menu.classList.toggle('is-open', !open);
+    });
+
+    // Blob
+    (function () {
+      const cx = 160, cy = 158, N = 12;
+      const baseRadii = [102, 86, 110, 80, 115, 88, 106, 92, 112, 82, 108, 90];
+      const speeds    = [0.48, 0.92, 0.63, 1.12, 0.53, 0.98, 0.68, 1.08, 0.58, 0.88, 0.73, 1.02];
+      const amps      = [17, 11, 21, 10, 23, 13, 19, 11, 22, 13, 18, 12];
+      const phases    = Array.from({length: N}, (_, i) => (i / N) * Math.PI * 2);
+
+      function catmullRom(pts) {
+        const n = pts.length, w = i => pts[(i + n) % n];
+        let d = `M ${pts[0].x.toFixed(2)} ${pts[0].y.toFixed(2)}`;
+        for (let i = 0; i < n; i++) {
+          const p0=w(i-1),p1=w(i),p2=w(i+1),p3=w(i+2);
+          const a=0.5, safe=v=>Math.max(v,0.001);
+          const t01=Math.pow(Math.hypot(p1.x-p0.x,p1.y-p0.y),a);
+          const t12=Math.pow(Math.hypot(p2.x-p1.x,p2.y-p1.y),a);
+          const t23=Math.pow(Math.hypot(p3.x-p2.x,p3.y-p2.y),a);
+          const m1x=p2.x-p1.x+t12*((p1.x-p0.x)/safe(t01)-(p2.x-p0.x)/safe(t01+t12));
+          const m1y=p2.y-p1.y+t12*((p1.y-p0.y)/safe(t01)-(p2.y-p0.y)/safe(t01+t12));
+          const m2x=p2.x-p1.x+t12*((p3.x-p2.x)/safe(t23)-(p3.x-p1.x)/safe(t12+t23));
+          const m2y=p2.y-p1.y+t12*((p3.y-p2.y)/safe(t23)-(p3.y-p1.y)/safe(t12+t23));
+          d+=` C ${(p1.x+m1x/3).toFixed(2)} ${(p1.y+m1y/3).toFixed(2)}, ${(p2.x-m2x/3).toFixed(2)} ${(p2.y-m2y/3).toFixed(2)}, ${p2.x.toFixed(2)} ${p2.y.toFixed(2)}`;
+        }
+        return d + ' Z';
+      }
+      function getPoints(t) {
+        return Array.from({length:N},(_,i)=>{
+          const angle=(i/N)*Math.PI*2-Math.PI/2;
+          const r=baseRadii[i]+Math.sin(t*speeds[i]+phases[i])*amps[i]+Math.sin(t*speeds[i]*0.41+phases[i]*1.7)*(amps[i]*0.5)+Math.sin(t*speeds[i]*0.17+phases[i]*0.6)*(amps[i]*0.25);
+          return {x:cx+Math.cos(angle)*r, y:cy+Math.sin(angle)*r};
+        });
+      }
+      const bm=document.getElementById('hBlobMain'), bs=document.getElementById('hBlobSheen');
+      const d1=document.getElementById('hDrip1'), d2=document.getElementById('hDrip2');
+      const d3=document.getElementById('hDrip3'), d4=document.getElementById('hDrip4');
+      const o1=document.getElementById('hOrb1'),  o2=document.getElementById('hOrb2');
+      const g1=document.getElementById('hG1');
+      let start=null;
+      function frame(ts){
+        if(!start)start=ts; const t=(ts-start)/1000;
+        const d=catmullRom(getPoints(t));
+        bm.setAttribute('d',d); bs.setAttribute('d',d);
+        d1.setAttribute('cx',cx+Math.sin(t*0.36)*54); d1.setAttribute('cy',cy+Math.cos(t*0.29)*46);
+        d2.setAttribute('cx',cx+Math.cos(t*0.50+1.2)*70); d2.setAttribute('cy',cy+Math.sin(t*0.42+0.8)*60);
+        d3.setAttribute('cx',cx+Math.sin(t*0.59+2.4)*74); d3.setAttribute('cy',cy+Math.cos(t*0.46+2.0)*64);
+        d4.setAttribute('cx',cx+Math.cos(t*0.27+3.2)*82); d4.setAttribute('cy',cy+Math.sin(t*0.35+2.6)*72);
+        o1.setAttribute('cx',cx+Math.sin(t*0.33+0.6)*32); o1.setAttribute('cy',cy+Math.cos(t*0.25+0.9)*26);
+        o2.setAttribute('cx',cx+Math.cos(t*0.53+1.9)*44); o2.setAttribute('cy',cy+Math.sin(t*0.41+1.3)*38);
+        g1.querySelector('stop').setAttribute('stop-color',`hsl(${215+Math.sin(t*0.18)*18},88%,${70+Math.sin(t*0.12)*8}%)`);
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
   </script>
 </body>
 </html>
