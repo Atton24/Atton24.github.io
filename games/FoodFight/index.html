@@ -10,6 +10,7 @@
   <link rel="stylesheet" href="TemplateData/style.css" />
   <script src="TemplateData/UnityProgress.js"></script>
   <script src="Build/UnityLoader.js"></script>
+
   <script>
     var gameInstance = UnityLoader.instantiate(
       "gameContainer",
@@ -17,19 +18,86 @@
       { onProgress: UnityProgress }
     );
   </script>
+
+  <style>
+    /* Force single-column hero layout for game pages */
+    .hero {
+      grid-template-columns: minmax(0, 1fr) !important;
+      text-align: center;
+      justify-items: center;
+      padding-top: 3rem;
+    }
+
+    .hero-left {
+      align-items: center;
+    }
+
+    /* Game container styling */
+    .game-container-outer {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .game-container-inner {
+      border-radius: 18px;
+      overflow: hidden;
+      background: #000;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .unity-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-top: 1rem;
+      opacity: 0.85;
+      font-size: 0.85rem;
+    }
+
+    .unity-footer-title {
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    .unity-fullscreen-btn {
+      cursor: pointer;
+      padding: 0.45rem 0.9rem;
+      border-radius: var(--radius-pill);
+      border: 1px solid rgba(148, 163, 184, 0.5);
+      background: radial-gradient(circle at top left, rgba(56, 189, 248, 0.18), rgba(15, 23, 42, 0.9));
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      transition: 0.2s ease;
+    }
+
+    .unity-fullscreen-btn:hover {
+      border-color: rgba(148, 163, 184, 0.8);
+    }
+  </style>
 </head>
 
-<body class="dark-bg">
+<body>
 
   <!-- NAV -->
   <header>
     <nav class="nav">
       <div class="nav-left">
+        <div class="monogram">
+          <svg viewBox="0 0 100 100">
+            <text x="50%" y="57%" text-anchor="middle" font-size="60" fill="#fff">D</text>
+          </svg>
+        </div>
         <div class="nav-title">
           <div class="nav-title-main">Daniel Thomas</div>
           <div class="nav-title-sub">Games</div>
         </div>
       </div>
+
       <div class="nav-links">
         <a href="../../index.html">Home</a>
         <a href="../../about.html">About</a>
@@ -41,20 +109,28 @@
     </nav>
   </header>
 
-  <!-- HERO SECTION -->
   <main>
-    <section class="hero shell-xl">
-      <div class="accent-tag">GAMES • UNITY • WEBGL</div>
 
-      <h1 class="hero-title">Food Fight</h1>
+    <!-- HERO -->
+    <section class="hero shell">
+      <div class="hero-left">
+        <div class="eyebrow">
+          <div class="eyebrow-dot"></div>
+          GAMES • UNITY • WEBGL
+        </div>
 
-      <p class="hero-subtitle">
-        A Unity WebGL game built by Daniel Thomas.
-      </p>
+        <h1 class="hero-title">
+          <span>Food Fight</span>
+        </h1>
+
+        <p class="hero-subtitle">
+          A Unity WebGL game built by Daniel Thomas.
+        </p>
+      </div>
     </section>
 
-    <!-- GAME SECTION -->
-    <section class="shell-xl" style="margin-top: 3rem;">
+    <!-- GAME -->
+    <section class="shell">
       <div class="game-container-outer">
         <div class="game-container-inner">
           <div id="gameContainer" style="width: 889px; height: 500px;"></div>
@@ -62,71 +138,33 @@
       </div>
 
       <div class="unity-footer">
-        <div class="unity-footer-left">
+        <div>
           <span class="unity-footer-title">Food Fight</span>
           <span class="unity-footer-authors">Created by: Daniel Thomas</span>
         </div>
+
         <button class="unity-fullscreen-btn" onclick="gameInstance.SetFullscreen(1)">
-          Go Fullscreen
+          Fullscreen
         </button>
       </div>
     </section>
+
   </main>
 
   <!-- FOOTER -->
   <footer>
     <div class="footer-inner">
       <span>© <span id="year"></span> Daniel Thomas.</span>
+      <div class="footer-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../contact.html">Contact</a>
+      </div>
     </div>
   </footer>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
   </script>
-
-  <style>
-    /* Match your new dark theme layout */
-    .game-container-outer {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-    }
-
-    .game-container-inner {
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
-      background: #000;
-    }
-
-    .unity-footer {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-top: 1rem;
-      opacity: 0.85;
-    }
-
-    .unity-footer-title {
-      font-weight: 600;
-    }
-
-    .unity-fullscreen-btn {
-      cursor: pointer;
-      padding: 0.4rem 0.9rem;
-      border-radius: 8px;
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      background: rgba(255, 255, 255, 0.05);
-      transition: 0.2s ease;
-    }
-
-    .unity-fullscreen-btn:hover {
-      background: rgba(255, 255, 255, 0.12);
-      border-color: rgba(255, 255, 255, 0.5);
-    }
-  </style>
 
 </body>
 </html>
