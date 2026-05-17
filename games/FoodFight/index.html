@@ -1,15 +1,11 @@
 <!DOCTYPE html>
-<html lang="en-us">
+<html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta http-equiv="Content-Type; X-UA-Compatible" content="text/html; IE=edge" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>FoodFight | Daniel Thomas</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Food Fight | Daniel Thomas</title>
 
-  <!-- Your site stylesheet -->
-  <link rel="stylesheet" href="../styles.css" />
-
-  <!-- Unity assets -->
+  <link rel="stylesheet" href="../../styles.css" />
   <link rel="shortcut icon" href="TemplateData/favicon.ico" />
   <link rel="stylesheet" href="TemplateData/style.css" />
   <script src="TemplateData/UnityProgress.js"></script>
@@ -21,15 +17,75 @@
       { onProgress: UnityProgress }
     );
   </script>
+</head>
 
-  <!-- Remove Unity’s forced root-level style.css -->
+<body class="dark-bg">
+
+  <!-- NAV -->
+  <header>
+    <nav class="nav">
+      <div class="nav-left">
+        <div class="nav-title">
+          <div class="nav-title-main">Daniel Thomas</div>
+          <div class="nav-title-sub">Games</div>
+        </div>
+      </div>
+      <div class="nav-links">
+        <a href="../../index.html">Home</a>
+        <a href="../../about.html">About</a>
+        <a href="../../projects.html">Projects</a>
+        <a href="../../resume.html">Resume</a>
+        <a href="../games.html" class="active">Games</a>
+        <a href="../../contact.html">Contact</a>
+      </div>
+    </nav>
+  </header>
+
+  <!-- HERO SECTION -->
+  <main>
+    <section class="hero shell-xl">
+      <div class="accent-tag">GAMES • UNITY • WEBGL</div>
+
+      <h1 class="hero-title">Food Fight</h1>
+
+      <p class="hero-subtitle">
+        A Unity WebGL game built by Daniel Thomas.
+      </p>
+    </section>
+
+    <!-- GAME SECTION -->
+    <section class="shell-xl" style="margin-top: 3rem;">
+      <div class="game-container-outer">
+        <div class="game-container-inner">
+          <div id="gameContainer" style="width: 889px; height: 500px;"></div>
+        </div>
+      </div>
+
+      <div class="unity-footer">
+        <div class="unity-footer-left">
+          <span class="unity-footer-title">Food Fight</span>
+          <span class="unity-footer-authors">Created by: Daniel Thomas</span>
+        </div>
+        <button class="unity-fullscreen-btn" onclick="gameInstance.SetFullscreen(1)">
+          Go Fullscreen
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-inner">
+      <span>© <span id="year"></span> Daniel Thomas.</span>
+    </div>
+  </footer>
+
   <script>
-    document.addEventListener("DOMContentLoaded", () => {
-      document.querySelectorAll('link[href="style.css"]').forEach(el => el.remove());
-    });
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 
   <style>
+    /* Match your new dark theme layout */
     .game-container-outer {
       display: flex;
       justify-content: center;
@@ -41,7 +97,7 @@
     .game-container-inner {
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 0 25px rgba(0, 0, 0, 0.4);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.6);
       background: #000;
     }
 
@@ -49,96 +105,28 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-top: 0.75rem;
-      font-size: 0.9rem;
+      margin-top: 1rem;
       opacity: 0.85;
-    }
-
-    .unity-footer-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
     }
 
     .unity-footer-title {
       font-weight: 600;
     }
 
-    .unity-footer-authors {
-      font-size: 0.85rem;
-    }
-
     .unity-fullscreen-btn {
       cursor: pointer;
-      padding: 0.35rem 0.75rem;
-      border-radius: 999px;
+      padding: 0.4rem 0.9rem;
+      border-radius: 8px;
       border: 1px solid rgba(255, 255, 255, 0.25);
-      background: rgba(0, 0, 0, 0.4);
-      font-size: 0.8rem;
-      transition: background 0.15s ease, border-color 0.15s ease;
+      background: rgba(255, 255, 255, 0.05);
+      transition: 0.2s ease;
     }
 
     .unity-fullscreen-btn:hover {
-      background: rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.12);
       border-color: rgba(255, 255, 255, 0.5);
     }
   </style>
-</head>
 
-<body>
-  <!-- Site header / nav -->
-  <header>
-    <nav class="nav">
-      <div class="nav-left">
-        <div class="nav-title">
-          <div class="nav-title-main">Daniel Thomas</div>
-          <div class="nav-title-sub">Games</div>
-        </div>
-      </div>
-      <div class="nav-links">
-        <a href="../index.html">Home</a>
-        <a href="../about.html">About</a>
-        <a href="../projects.html">Projects</a>
-        <a href="../resume.html">Resume</a>
-        <a href="../games/games.html">Games</a>
-        <a href="../contact.html">Contact</a>
-      </div>
-    </nav>
-  </header>
-
-  <main>
-    <div class="shell">
-      <section>
-        <h1 class="section-title">FoodFight</h1>
-        <p class="section-subtitle">A Unity WebGL game built by Daniel Thomas.</p>
-
-        <div class="game-container-outer">
-          <div class="game-container-inner">
-            <div id="gameContainer" style="width: 889px; height: 500px"></div>
-          </div>
-        </div>
-
-        <div class="unity-footer">
-          <div class="unity-footer-left">
-            <span class="unity-footer-title">FoodFight</span>
-            <span class="unity-footer-authors">Created by: Daniel Thomas</span>
-          </div>
-          <button class="unity-fullscreen-btn" onclick="gameInstance.SetFullscreen(1)">
-            Go Fullscreen
-          </button>
-        </div>
-      </section>
-    </div>
-  </main>
-
-  <footer>
-    <div class="footer-inner">
-      <span>© <span id="year"></span> Daniel Thomas.</span>
-    </div>
-  </footer>
-
-  <script>
-    document.getElementById("year").textContent = new Date().getFullYear();
-  </script>
 </body>
 </html>
