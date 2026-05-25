@@ -52,6 +52,7 @@ function BackyardPlanner() {
 
   // Tool params
   const [sprinklerR, setSprinklerR] = useState(3);
+  const [sprinklerType, setSprinklerType] = useState("popup_spray");
   const [objSize, setObjSize]       = useState(1);
   const [activeZone, setActiveZone] = useState(1);
   const [hoverCell, setHoverCell]   = useState(null);
@@ -272,13 +273,26 @@ function BackyardPlanner() {
       }
       push({ground, objects:[...objects,{
         x:cell.x, y:cell.y, type:activeTool, size:objSize,
-        ...(activeTool==="sprinkler"?{radius:sprinklerR,zone:activeZone}:{}),
+        ...(activeTool==="sprinkler"?{
+          radius:sprinklerR, zone:activeZone,
+          sprinklerType,
+          sprinklerColor: SPRINKLER_TYPES.find(t=>t.id===sprinklerType)?.color,
+        }:{}),
         ...(activeTool==="drip_emitter"?{radius:1.5}:{}),
+        ...(activeTool==="house"?{width:Math.min(10, cols-cell.x-1), depth:Math.min(8, rows-cell.y-1)}:{}),
       }], lines});
+      if (activeTool==="house") setToast({type:"info", msg:"House placed. Switch to Select to resize via the properties panel."});
       return;
     }
     if (activeTool === "select") {
-      const oi = objects.findIndex(o=>o.x===cell.x&&o.y===cell.y);
+      // Try exact-cell hit first
+      let oi = objects.findIndex(o=>o.x===cell.x&&o.y===cell.y);
+      // For house objects, allow clicking anywhere inside the footprint
+      if (oi < 0) {
+        oi = objects.findIndex(o => o.type==="house"
+          && cell.x >= o.x && cell.x < o.x + (o.width||8)
+          && cell.y >= o.y && cell.y < o.y + (o.depth||6));
+      }
       if (oi>=0) { setSel({kind:"object",idx:oi}); return; }
       const li = lines.findIndex(l=>l.points.some(p=>Math.abs(p.x-cell.x)<=1&&Math.abs(p.y-cell.y)<=1));
       setSel(li>=0 ? {kind:"line",idx:li} : null);
@@ -422,16 +436,25 @@ function BackyardPlanner() {
   };
 
   /* ─── YARD SETUP / RESIZE ─── */
-  const applyYardSetup = ({cols:nc, rows:nr, cellM:ncm, preserveLot}) => {
+  const applyYardSetup = ({cols:nc, rows:nr, cellM:ncm, preserveLot, preserveDesign}) => {
+    const oldCellM = cellM;
     setCols(nc); setRows(nr); setCellM(ncm);
-    dispatch({type:"RESET"});
+    if (preserveDesign) {
+      // Rescale ground/objects/lines to remain at the same real-world positions
+      const rescaled = rescaleDesign({ground, objects, lines}, oldCellM, ncm);
+      dispatch({type:"LOAD", p: rescaled});
+    } else {
+      dispatch({type:"RESET"});
+    }
     setSel(null);
     if (!preserveLot) setLotPlan(null);
     setShowSizeModal(false);
     setToast({type:"info",
-      msg: preserveLot
-        ? `Grid rescaled to ${nc}×${nr} at ${(ncm*3.28084).toFixed(2)} ft/cell. Lot overlay preserved.`
-        : `Yard resized to ${nc}×${nr} · ${fmtArea(nc*nr, ncm, metric)}. Canvas cleared.`,
+      msg: preserveDesign
+        ? `Grid rescaled to ${nc}×${nr} at ${(ncm*3.28084).toFixed(2)} ft/cell. Design preserved.`
+        : preserveLot
+          ? `Grid rescaled to ${nc}×${nr}. Lot preserved, design cleared.`
+          : `Yard resized to ${nc}×${nr} · ${fmtArea(nc*nr, ncm, metric)}. Canvas cleared.`,
     });
   };
 
@@ -445,12 +468,16 @@ function BackyardPlanner() {
     const newR = Math.ceil(lD/niceCellFt) + 2;
     setCols(newC); setRows(newR); setCellM(niceCellM); setMetric(false);
     setYardName(plan.yardName || plan.address || "My Lot");
-    dispatch({type:"RESET"});
+    // Generate fence lines for chosen sides
+    const fences = plan.fenceSides && plan.fenceSides.length
+      ? lotFenceLines(plan, niceCellM, plan.fenceSides)
+      : [];
+    dispatch({type:"LOAD", p:{ground:{}, objects:[], lines:fences}});
     setSel(null);
     setLotPlan(plan);
     setShowLot(true);
     setShowPlotImport(false);
-    setToast({type:"success", msg:`Lot loaded: ${plan.lotWidthFt}×${plan.lotDepthFt}ft · ${plan.lotAreaSF.toLocaleString()} ft².`});
+    setToast({type:"success", msg:`Lot loaded: ${plan.lotWidthFt}×${plan.lotDepthFt}ft · ${plan.lotAreaSF.toLocaleString()} ft²${fences.length?` · ${fences.length} fence sides`:""}.`});
   };
 
   /* ─── EXPORT / IMPORT ─── */
@@ -671,18 +698,18 @@ function BackyardPlanner() {
                 const c = ZONE_COLORS[z-1];
                 const active = activeZone===z;
                 return (
-                  <Tip key={z} text={`Zone ${z} (${ZONE_NAMES[z-1]}) — separate timer schedule`}>
+                  <Tip key={z} text={`Zone ${z} — ${ZONE_NAMES[z-1]} · separate timer schedule`}>
                     <button onClick={()=>setActiveZone(z)} style={{
-                      flex:1, padding:"7px 6px", fontSize:11.5, fontWeight:700,
+                      flex:1, padding:"7px 6px", fontSize:12.5, fontWeight:700,
                       border:"none", borderRadius:8,
                       background: active ? c : "transparent",
                       color: active ? "#fff" : c,
                       cursor:"pointer", fontFamily:"var(--font-sans)",
-                      display:"inline-flex",alignItems:"center",justifyContent:"center",gap:5,
+                      display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,
                       transition:"all .12s",
                     }}>
-                      <span style={{width:7,height:7,borderRadius:"50%",background:active?"#fff":c}}/>
-                      Z{z} · {ZONE_NAMES[z-1]}
+                      <span style={{width:9,height:9,borderRadius:"50%",background:active?"#fff":c}}/>
+                      Z{z}
                     </button>
                   </Tip>
                 );
@@ -779,13 +806,56 @@ function BackyardPlanner() {
         {/* Tool options (radius / size) */}
         {sizeToolSet.includes(activeTool) && (
           <div style={{padding:"11px 14px", borderTop:`1px solid ${T.borderSoft}`, flexShrink:0, background:T.bg}}>
-            {activeTool==="sprinkler" && (<>
-              <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
-                <span style={{fontSize:10.5,color:T.text3,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em"}}>Spray Radius</span>
-                <span style={{fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,color:T.text}}>{sprinklerR} cells · {fmt(sprinklerR,cellM,metric)}</span>
-              </div>
-              <input type="range" min={1} max={8} value={sprinklerR} step={1} onChange={e=>setSprinklerR(+e.target.value)} style={{width:"100%",marginBottom:10}}/>
-            </>)}
+            {activeTool==="sprinkler" && (() => {
+              const ftPerCell = cellM * 3.28084;
+              const stype = SPRINKLER_TYPES.find(t=>t.id===sprinklerType) || SPRINKLER_TYPES[1];
+              const minCells = Math.max(1, Math.round(stype.minRadiusFt / ftPerCell));
+              const maxCells = Math.max(minCells+1, Math.round(stype.maxRadiusFt / ftPerCell));
+              const safeR = Math.min(Math.max(sprinklerR, minCells), maxCells);
+              return (
+                <>
+                  <div style={{fontSize:10.5,color:T.text3,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}}>Sprinkler Type</div>
+                  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,marginBottom:10}}>
+                    {SPRINKLER_TYPES.map(s=>{
+                      const active = sprinklerType===s.id;
+                      return (
+                        <Tip key={s.id} text={`${s.name} — ${s.description} (${s.flow})`}>
+                          <button onClick={()=>{
+                            setSprinklerType(s.id);
+                            // Re-snap radius to type's default if outside new range
+                            const defCells = Math.max(1, Math.round(s.defaultRadiusFt / ftPerCell));
+                            setSprinklerR(defCells);
+                          }} style={{
+                            display:"flex",alignItems:"center",gap:5,padding:"5px 7px",
+                            border:`1.5px solid ${active?s.color:T.border}`,
+                            borderRadius:7,cursor:"pointer",
+                            background:active?s.color+"1F":"transparent",
+                            color:active?s.color:T.text2,
+                            fontFamily:"var(--font-sans)",
+                            fontSize:10.5,fontWeight:active?700:500,
+                            minWidth:0,overflow:"hidden",
+                          }}>
+                            <span style={{width:8,height:8,borderRadius:"50%",background:s.color,flexShrink:0}}/>
+                            <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name.replace("Gear Rotor · ","Rotor ")}</span>
+                          </button>
+                        </Tip>
+                      );
+                    })}
+                  </div>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
+                    <span style={{fontSize:10.5,color:T.text3,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em"}}>Spray Radius</span>
+                    <span style={{fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,color:T.text}}>{fmt(safeR,cellM,metric)} · {safeR}c</span>
+                  </div>
+                  <input type="range" min={minCells} max={maxCells} value={safeR} step={1}
+                    onChange={e=>setSprinklerR(+e.target.value)}
+                    style={{width:"100%",marginBottom:4,accentColor:stype.color}}/>
+                  <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:T.text3,marginBottom:10,fontFamily:"var(--font-mono)"}}>
+                    <span>{metric?`${(stype.minRadiusFt*0.3048).toFixed(1)}m`:`${stype.minRadiusFt}ft`}</span>
+                    <span>{metric?`${(stype.maxRadiusFt*0.3048).toFixed(1)}m`:`${stype.maxRadiusFt}ft`}</span>
+                  </div>
+                </>
+              );
+            })()}
             <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
               <span style={{fontSize:10.5,color:T.text3,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em"}}>Size</span>
               <span style={{fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,color:T.text}}>{objSize}×</span>
@@ -808,14 +878,62 @@ function BackyardPlanner() {
                   <div style={{fontSize:11,color:T.text2,fontFamily:"var(--font-mono)"}}>{fmt(selObj.x,cellM,metric)}, {fmt(selObj.y,cellM,metric)}</div>
                 </div>
               </div>
-              {selObj.type==="sprinkler" && (<>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
-                  <span style={{color:T.text2,fontWeight:500}}>Radius</span>
-                  <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>{selObj.radius||3} cells</span>
-                </div>
-                <input type="range" min={1} max={8} value={selObj.radius||3} step={1}
-                  onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,radius:+e.target.value}:o),lines})}
-                  style={{width:"100%",marginBottom:10}}/>
+              {selObj.type==="sprinkler" && (() => {
+                const stype = SPRINKLER_TYPES.find(t=>t.id===selObj.sprinklerType) || SPRINKLER_TYPES[1];
+                const minFt = stype.minRadiusFt;
+                const maxFt = stype.maxRadiusFt;
+                const ftPerCell = cellM * 3.28084;
+                const minCells = Math.max(1, Math.round(minFt / ftPerCell));
+                const maxCells = Math.max(minCells+1, Math.round(maxFt / ftPerCell));
+                const r = selObj.radius || 3;
+                const radiusFt = (r * ftPerCell).toFixed(1);
+                const switchType = (newId) => {
+                  const ns = SPRINKLER_TYPES.find(s=>s.id===newId);
+                  if (!ns) return;
+                  const defCells = Math.max(1, Math.round(ns.defaultRadiusFt / ftPerCell));
+                  push({ground, objects:objects.map((o,i)=>i===sel.idx?{
+                    ...o, sprinklerType:newId, sprinklerColor:ns.color, radius:defCells,
+                  }:o), lines});
+                };
+                return (
+                  <>
+                    <div style={{fontSize:10.5,color:T.text3,fontWeight:700,textTransform:"uppercase",letterSpacing:".07em",marginBottom:6}}>Sprinkler Type</div>
+                    <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:4,marginBottom:10}}>
+                      {SPRINKLER_TYPES.map(s=>{
+                        const active = (selObj.sprinklerType||"popup_spray")===s.id;
+                        return (
+                          <Tip key={s.id} text={`${s.name} — ${s.description} (${s.flow})`}>
+                            <button onClick={()=>switchType(s.id)} style={{
+                              display:"flex",alignItems:"center",gap:5,padding:"5px 7px",
+                              border:`1.5px solid ${active?s.color:T.border}`,
+                              borderRadius:7,cursor:"pointer",
+                              background:active?s.color+"1F":"transparent",
+                              color:active?s.color:T.text2,
+                              fontFamily:"var(--font-sans)",
+                              fontSize:10.5,fontWeight:active?700:500,
+                              minWidth:0,overflow:"hidden",
+                            }}>
+                              <span style={{width:8,height:8,borderRadius:"50%",background:s.color,flexShrink:0}}/>
+                              <span style={{overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{s.name.replace("Gear Rotor · ","Rotor ")}</span>
+                            </button>
+                          </Tip>
+                        );
+                      })}
+                    </div>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
+                      <span style={{color:T.text2,fontWeight:500}}>Spray Radius</span>
+                      <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
+                        {metric ? `${(r*cellM).toFixed(1)} m` : `${radiusFt} ft`} · {r}c
+                      </span>
+                    </div>
+                    <input type="range" min={minCells} max={maxCells} value={Math.min(r, maxCells)} step={1}
+                      onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,radius:+e.target.value}:o),lines})}
+                      style={{width:"100%",marginBottom:4,accentColor:stype.color}}/>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:T.text3,marginBottom:10,fontFamily:"var(--font-mono)"}}>
+                      <span>{metric?`${(minFt*0.3048).toFixed(1)}m`:`${minFt}ft`}</span>
+                      <span style={{color:stype.color,fontWeight:600,letterSpacing:".02em"}}>{stype.flow}</span>
+                      <span>{metric?`${(maxFt*0.3048).toFixed(1)}m`:`${maxFt}ft`}</span>
+                    </div>
                 <div style={{display:"flex",gap:4,marginBottom:6}}>
                   {[1,2,3].map(z=>(
                     <button key={z} onClick={()=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,zone:z}:o),lines})}
@@ -825,6 +943,31 @@ function BackyardPlanner() {
                         cursor:"pointer",color:(selObj.zone||1)===z?ZONE_COLORS[z-1]:T.text2,
                         fontFamily:"var(--font-sans)"}}>Z{z}</button>
                   ))}
+                </div>
+                  </>
+                );
+              })()}
+              {selObj.type==="house" && (<>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
+                  <span style={{color:T.text2,fontWeight:500}}>Width</span>
+                  <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
+                    {selObj.width||8} cells · {fmt(selObj.width||8, cellM, metric)}
+                  </span>
+                </div>
+                <input type="range" min={2} max={Math.max(4, cols-(selObj.x||0)-1)} value={selObj.width||8} step={1}
+                  onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,width:+e.target.value}:o),lines})}
+                  style={{width:"100%",marginBottom:10}}/>
+                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
+                  <span style={{color:T.text2,fontWeight:500}}>Depth</span>
+                  <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
+                    {selObj.depth||6} cells · {fmt(selObj.depth||6, cellM, metric)}
+                  </span>
+                </div>
+                <input type="range" min={2} max={Math.max(4, rows-(selObj.y||0)-1)} value={selObj.depth||6} step={1}
+                  onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,depth:+e.target.value}:o),lines})}
+                  style={{width:"100%",marginBottom:10}}/>
+                <div style={{fontSize:10.5,color:T.text3,marginBottom:6,fontFamily:"var(--font-mono)",textAlign:"center"}}>
+                  Footprint: {fmtArea((selObj.width||8)*(selObj.depth||6), cellM, metric)}
                 </div>
               </>)}
             </>)}
@@ -903,8 +1046,10 @@ function BackyardPlanner() {
           {/* Zoom */}
           <div style={{display:"flex",alignItems:"center",gap:7,padding:"3px 11px 3px 9px",border:`1px solid ${T.border}`,borderRadius:9,background:T.bg}}>
             <span style={{fontSize:11,color:T.text2,fontWeight:600}}>Zoom</span>
-            <input type="range" min={0.3} max={3} step={0.1} value={zoom} onChange={e=>setZoom(+e.target.value)} style={{width:80}}/>
+            <input type="range" min={0.1} max={3} step={0.05} value={zoom} onChange={e=>setZoom(+e.target.value)} style={{width:80}}/>
             <span style={{fontSize:11,color:T.text2,minWidth:36,fontFamily:"var(--font-mono)",fontWeight:600}}>{Math.round(zoom*100)}%</span>
+            <button onClick={()=>setZoom(1)} title="Reset zoom to 100%"
+              style={{marginLeft:2,background:"none",border:"none",cursor:"pointer",color:T.text3,fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,padding:0}}>↻</button>
           </div>
 
           {/* Help / FS */}

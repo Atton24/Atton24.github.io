@@ -243,6 +243,8 @@ function PlotImportModal({T, onClose, onApply, metric}) {
   const [m_houseH, setM_houseH] = useStateMod(40);
   const [m_setbackFront, setM_setbackFront] = useStateMod(20);
   const [m_addr, setM_addr] = useStateMod("");
+  // Optional perimeter features detected/included from plan
+  const [m_fenceSides, setM_fenceSides] = useStateMod({rear:true, left:true, right:true, front:false});
 
   useEffectMod(() => {
     if (stage !== "analyzing") return;
@@ -355,6 +357,7 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
     const sb = +m_setbackFront || 20;
     const houseX = (lW - hW) / 2;
     const houseY = lD - hH - sb;
+    const fenceSidesArr = Object.entries(m_fenceSides).filter(([,v])=>v).map(([k])=>k);
     const finalPlan = {
       yardName: m_addr || plan?.yardName || "My Lot",
       address: m_addr,
@@ -369,6 +372,7 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
       lotDepthFt: lD,
       scale: plan?.scale,
       sourceFile: plan?.sourceFile,
+      fenceSides: fenceSidesArr,
     };
     onApply(finalPlan);
   };
@@ -557,6 +561,31 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
             <NumberField label="Distance from house to street" value={m_setbackFront} onChange={setM_setbackFront} min={0} max={+m_lotD-(+m_houseH)} unit="ft" T={T}/>
           </div>
 
+          <div>
+            <SectionLabel T={T}>Perimeter Fence</SectionLabel>
+            <div style={{fontSize:11.5,color:T.text2,marginBottom:7,lineHeight:1.5}}>Pick which sides to draw as fence on the canvas.</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+              {[["rear","Rear"],["left","Left side"],["right","Right side"],["front","Front (street)"]].map(([k,l])=>{
+                const on = m_fenceSides[k];
+                return (
+                  <button key={k} onClick={()=>setM_fenceSides(s=>({...s,[k]:!s[k]}))} style={{
+                    display:"flex",alignItems:"center",gap:7,padding:"7px 10px",
+                    border:`1.5px solid ${on?T.primary:T.border}`,borderRadius:9,cursor:"pointer",
+                    background:on?T.primaryBg:T.bg,color:T.text,fontFamily:"var(--font-sans)",
+                    fontSize:12,fontWeight:on?600:500,
+                  }}>
+                    <span style={{
+                      width:14,height:14,borderRadius:4,border:`1.5px solid ${on?T.primary:T.text3}`,
+                      background:on?T.primary:"transparent",
+                      display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",flexShrink:0,
+                    }}>{on && <Icon name="check" size={10}/>}</span>
+                    {l}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+
           {error && <div style={{padding:"9px 12px",background:T.accentBg,border:`1px solid ${T.accent}`,borderRadius:10,fontSize:12,color:T.accent}}>{error}</div>}
         </div>
 
@@ -574,6 +603,11 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
               {/* Lot */}
               <rect x={cx} y={cy} width={lotPxW} height={lotPxD}
                 fill={hexToRgba(T.primary, .08)} stroke={T.primary} strokeWidth={1.5} strokeDasharray="5 3"/>
+              {/* Fence sides */}
+              {m_fenceSides.rear  && <line x1={cx} y1={cy} x2={cx+lotPxW} y2={cy} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
+              {m_fenceSides.left  && <line x1={cx} y1={cy} x2={cx} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
+              {m_fenceSides.right && <line x1={cx+lotPxW} y1={cy} x2={cx+lotPxW} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
+              {m_fenceSides.front && <line x1={cx} y1={cy+lotPxD} x2={cx+lotPxW} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
               {/* House */}
               <rect x={cx+houseX} y={cy+houseY} width={housePxW} height={housePxD}
                 fill={hexToRgba(T.text2, .25)} stroke={T.text} strokeWidth={1.5}/>
@@ -638,8 +672,8 @@ function YardSetupModal({T, currentCols, currentRows, currentCellM, metric, lotP
   const [cCols, setCCols]   = useStateMod(currentCols);
   const [cRows, setCRows]   = useStateMod(currentRows);
   const [cCellM, setCCellM] = useStateMod(currentCellM);
-  // Lot-mode cell size (separate so leaving lot mode doesn't lose custom value)
   const [lotCellM, setLotCellM] = useStateMod(currentCellM);
+  const [preserveDesign, setPreserveDesign] = useStateMod(true);
 
   const preset = YARD_PRESETS.find(p=>p.id===presetId) || YARD_PRESETS[1];
   // Compute cols/rows for lot mode based on chosen cellM
@@ -663,14 +697,14 @@ function YardSetupModal({T, currentCols, currentRows, currentCellM, metric, lotP
   return (
     <ModalShell T={T} ico="size" title="Yard Setup"
       subtitle={hasLot
-        ? "Adjust the cell scale for your imported lot. The lot overlay is preserved; ground & objects will be reset."
-        : "Set your yard size, real-world scale, and units. Applying this will clear your current design."}
+        ? "Adjust the cell scale for your imported lot. Your design can be rescaled to fit."
+        : "Set your yard size, real-world scale, and units."}
       onClose={onClose} width={680}
       footer={<>
         <ModalBtn T={T} ghost flex={0} style={{flex:"0 0 auto"}} onClick={onClose}>Cancel</ModalBtn>
         <div style={{flex:1}}/>
         <ModalBtn T={T} primary flex={0} style={{flex:"0 0 auto",minWidth:200}}
-          onClick={()=>onApply({cols, rows, cellM, preserveLot: mode==="lot"})}>
+          onClick={()=>onApply({cols, rows, cellM, preserveLot: mode==="lot", preserveDesign})}>
           <Icon name="check" size={16}/> Apply
         </ModalBtn>
       </>}>
@@ -884,6 +918,31 @@ function YardSetupModal({T, currentCols, currentRows, currentCellM, metric, lotP
                 <Stat T={T} label="Depth" value={metric?`${totalD.toFixed(1)}m`:`${(totalD*3.28084).toFixed(0)}ft`} mono/>
                 <Stat T={T} label="Total Area" value={metric?`${Math.round(totalW*totalD)}m²`:`${Math.round(totalW*totalD*10.7639)}ft²`} mono span={2}/>
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Preserve-design toggle */}
+        <div style={{marginTop:16,padding:"12px 14px",background:T.bgAlt,borderRadius:12,border:`1px solid ${T.borderSoft}`,display:"flex",alignItems:"center",gap:12}}>
+          <button onClick={()=>setPreserveDesign(v=>!v)}
+            role="switch" aria-checked={preserveDesign}
+            style={{
+              flexShrink:0,width:38,height:22,padding:2,border:"none",borderRadius:999,
+              background: preserveDesign ? T.primary : T.border,
+              cursor:"pointer",position:"relative",transition:"background .15s",
+            }}>
+            <span style={{
+              position:"absolute",top:2,left: preserveDesign ? 18 : 2,
+              width:18,height:18,borderRadius:"50%",background:"#fff",
+              transition:"left .15s", boxShadow:"0 1px 3px rgba(0,0,0,.25)",
+            }}/>
+          </button>
+          <div style={{flex:1,minWidth:0}}>
+            <div style={{fontSize:13,fontWeight:600,color:T.text}}>Keep my existing design</div>
+            <div style={{fontSize:11.5,color:T.text2,marginTop:1,lineHeight:1.45}}>
+              {preserveDesign
+                ? "Ground, objects, and lines will rescale to keep their real-world positions."
+                : "Canvas will be cleared. Existing painting and objects will be lost."}
             </div>
           </div>
         </div>

@@ -26,6 +26,7 @@ const ICONS = {
   fire:  <><path d="M12 3c1 3 4 4 4 8a4 4 0 1 1-8 0c0-2 1-3 2-4 0 2 1 3 2 3 0-3 0-5 0-7z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/></>,
   gazebo:<><path d="M4 10l8-6 8 6M6 10v9M18 10v9M4 19h16M9 19v-6h6v6" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/></>,
   shed:  <><path d="M4 12l8-6 8 6v8H4z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/><path d="M10 20v-5h4v5" stroke="currentColor" strokeWidth="1.5" fill="none"/></>,
+  house: <><path d="M3 11l9-7 9 7v9H3z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" fill="none"/><path d="M10 20v-6h4v6M14 8v-3h3v5" stroke="currentColor" strokeWidth="1.4" fill="none"/></>,
   pool:  <><ellipse cx="12" cy="14" rx="8" ry="5" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M6 11s1-1 2-1 2 1 4 1 3-1 4-1 2 1 2 1" stroke="currentColor" strokeWidth="1.3" fill="none"/></>,
   compost:<><rect x="4" y="6" width="16" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M4 11h16M4 16h16M9 6v14M15 6v14" stroke="currentColor" strokeWidth="1.2" fill="none"/></>,
   fence: <><path d="M4 9l2-3 2 3v11H4zM10 9l2-3 2 3v11h-4zM16 9l2-3 2 3v11h-4zM2 14h20M2 17h20" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none"/></>,
@@ -65,7 +66,7 @@ const TOOL_ICON = {
   sprinkler:"spray", drip_emitter:"drip", watersource:"tap",
   hose_reel:"hose", pump:"pump", light:"light", bench:"bench",
   firepit:"fire", gazebo:"gazebo", shed:"shed", pool:"pool",
-  compost:"compost",
+  compost:"compost", house:"house",
   irrigation:"pipe", drip_line:"drip2", fence:"fence", path:"path",
   wall:"wall", hedge:"hedge", powerline:"power", measure:"ruler",
 };

@@ -93,6 +93,39 @@ const GROUND_COLORS = {
 
 /* ─── OBJECT DRAW ──────────────────────────────────────────────────────── */
 function drawObj(ctx, obj, cs, sel, dark) {
+  // ── HOUSE (rectangular footprint with width/depth in cells) ───────────
+  if (obj.type === "house") {
+    const w = (obj.width || 8) * cs;
+    const h = (obj.depth || 6) * cs;
+    const x = obj.x * cs, y = obj.y * cs;
+    if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
+    // Body
+    ctx.fillStyle   = dark ? "rgba(148,163,184,.28)" : "rgba(120,130,140,.22)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = dark ? "rgba(200,210,220,.85)" : "rgba(70,80,90,.9)";
+    ctx.lineWidth   = 2.5;
+    ctx.strokeRect(x, y, w, h);
+    // Inset detail line
+    ctx.strokeStyle = dark ? "rgba(148,163,184,.4)" : "rgba(70,80,90,.35)";
+    ctx.lineWidth   = 1;
+    ctx.strokeRect(x+5, y+5, w-10, h-10);
+    // Label
+    const fontSize = Math.max(11, Math.min(22, Math.min(w, h)/4));
+    ctx.fillStyle = dark ? "rgba(230,235,240,.95)" : "rgba(50,60,70,.95)";
+    ctx.font = `700 ${fontSize}px var(--font-sans, sans-serif)`;
+    ctx.textAlign = "center"; ctx.textBaseline = "middle";
+    ctx.fillText("HOUSE", x+w/2, y+h/2 - fontSize*0.35);
+    // Door indicator (south face)
+    const doorW = Math.min(w * 0.18, 30);
+    ctx.strokeStyle = dark ? "rgba(200,210,220,.7)" : "rgba(60,70,80,.65)";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.4, y + h);
+    ctx.lineTo(x + w*0.4 + doorW, y + h);
+    ctx.stroke();
+    if (sel) ctx.restore();
+    return;
+  }
   const cx = obj.x*cs+cs/2, cy = obj.y*cs+cs/2, r = (obj.size||1)*cs*.44;
   if (sel) { ctx.save(); ctx.shadowColor=dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur=14; }
   switch (obj.type) {
@@ -401,6 +434,7 @@ const GT = [
 ];
 
 const OT = [
+  {id:"house",       label:"House",        tip:"Place a house outline. Resize via the properties panel."},
   {id:"tree",        label:"Tree",         tip:"Shade or ornamental tree."},
   {id:"shrub",       label:"Shrub",        tip:"Ornamental shrub or bush."},
   {id:"flowerbed",   label:"Flower Bed",   tip:"Annual or perennial flower bed."},
@@ -483,6 +517,66 @@ function makeStarterYard(cols, rows) {
   return { ground, objects, lines: [] };
 }
 
+/* ─── DESIGN RESCALE ───────────────────────────────────────────────────── */
+// When cellM changes, remap ground/objects/lines so they stay at the same
+// real-world position. Returns the rescaled design state.
+function rescaleDesign({ground, objects, lines}, oldCellM, newCellM) {
+  const ratio = oldCellM / newCellM; // new_cells = old_cells * ratio
+  if (Math.abs(ratio - 1) < 0.001) return {ground, objects, lines};
+  const newGround = {};
+  Object.entries(ground).forEach(([key, type]) => {
+    const [c, r] = key.split(',').map(Number);
+    if (ratio >= 1) {
+      // Cells get bigger in new grid: each old cell fills a block
+      const x0 = Math.floor(c * ratio);
+      const x1 = Math.max(x0+1, Math.floor((c+1) * ratio));
+      const y0 = Math.floor(r * ratio);
+      const y1 = Math.max(y0+1, Math.floor((r+1) * ratio));
+      for (let yy = y0; yy < y1; yy++)
+        for (let xx = x0; xx < x1; xx++)
+          newGround[`${xx},${yy}`] = type;
+    } else {
+      // Cells shrink: round to nearest new cell
+      const nc = Math.round(c * ratio);
+      const nr = Math.round(r * ratio);
+      newGround[`${nc},${nr}`] = type;
+    }
+  });
+  const remap = (x, y) => ({ x: Math.round(x * ratio), y: Math.round(y * ratio) });
+  const newObjects = objects.map(o => ({
+    ...o,
+    ...remap(o.x, o.y),
+    ...(o.radius !== undefined ? { radius: Math.max(1, Math.round(o.radius * ratio)) } : {}),
+  }));
+  const newLines = lines.map(l => ({
+    ...l,
+    points: l.points.map(p => remap(p.x, p.y)),
+  }));
+  return { ground: newGround, objects: newObjects, lines: newLines };
+}
+
+/* ─── LOT POLYGON → FENCE LINE ─────────────────────────────────────────── */
+// Builds a Patch line in cell coords for a fence around the lot edges.
+// `sides` is an array of side names from {front, rear, left, right}.
+function lotFenceLines(lotPlan, cellM, sides = ["rear", "left", "right"]) {
+  if (!lotPlan?.lotWidthFt || !lotPlan?.lotDepthFt) return [];
+  const ftPerCell = cellM * 3.28084;
+  // Lot starts 1 cell in from grid edge (matching draw)
+  const ox = 1, oy = 1;
+  const W  = lotPlan.lotWidthFt / ftPerCell;
+  const D  = lotPlan.lotDepthFt / ftPerCell;
+  const tl = {x: Math.round(ox), y: Math.round(oy)};
+  const tr = {x: Math.round(ox + W), y: Math.round(oy)};
+  const bl = {x: Math.round(ox), y: Math.round(oy + D)};
+  const br = {x: Math.round(ox + W), y: Math.round(oy + D)};
+  const lines = [];
+  if (sides.includes("rear"))  lines.push({type:"fence", points:[tl, tr], auto:true, source:"plot"});
+  if (sides.includes("left"))  lines.push({type:"fence", points:[tl, bl], auto:true, source:"plot"});
+  if (sides.includes("right")) lines.push({type:"fence", points:[tr, br], auto:true, source:"plot"});
+  if (sides.includes("front")) lines.push({type:"fence", points:[bl, br], auto:true, source:"plot"});
+  return lines;
+}
+
 /* ─── EXPORTS ──────────────────────────────────────────────────────────── */
 Object.assign(window, {
   BASE_CS, MAX_UNDO, D_COLS, D_ROWS,
@@ -498,4 +592,5 @@ Object.assign(window, {
   GT, OT, LT, UT, ALL_TOOLS, TOOL_MAP,
   ZONE_COLORS, ZONE_NAMES,
   YARD_PRESETS, makeStarterYard,
+  rescaleDesign, lotFenceLines,
 });
