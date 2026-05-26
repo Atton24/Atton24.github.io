@@ -857,6 +857,9 @@ function BackyardPlanner() {
               <button onClick={()=>setShowPlotImport(true)} style={btnGhost(T)}>
                 <Icon name="map" size={16} color={T.text2}/> Import Plot Plan
               </button>
+              <button onClick={importDesign} style={btnGhost(T)}>
+                <Icon name="upload" size={16} color={T.text2}/> Import Design (.json)
+              </button>
               <button onClick={loadStarter} style={btnGhost(T)}>
                 <Icon name="leaf" size={16} color={T.text2}/> Load Sample Yard
               </button>
@@ -1169,13 +1172,13 @@ function BackyardPlanner() {
           </>}
 
           {/* Import / export */}
-          {!isMobile && (
-            <button onClick={importDesign} style={{
-              ...iconBtn(T), padding:"6px 12px", gap:6, fontSize:12, fontWeight:500,
-            }}>
-              <Icon name="upload" size={14}/> Import
-            </button>
-          )}
+          <button onClick={importDesign} style={{
+            ...iconBtn(T),
+            padding: isMobile ? "6px 9px" : "6px 12px",
+            gap:6, fontSize:12, fontWeight:500,
+          }}>
+            <Icon name="upload" size={14}/> {!isMobile && "Import"}
+          </button>
           <button onClick={exportDesign} style={{
             padding: isMobile ? "6px 10px" : "6px 13px",
             fontSize:12.5,fontWeight:600,
