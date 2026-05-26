@@ -182,7 +182,8 @@ function BackyardPlanner() {
     // Lot overlay
     if (lotPlan && showLot) {
       const ftPerCell = cellM * 3.28084;
-      const ptC = (fx, fy) => [fx / ftPerCell * cs, fy / ftPerCell * cs];
+      // 1-cell visual padding around the lot — fences and house overlay use the same offset.
+      const ptC = (fx, fy) => [cs + fx / ftPerCell * cs, cs + fy / ftPerCell * cs];
 
       if (lotPlan.polygon && lotPlan.polygon.length >= 3) {
         ctx.beginPath();
@@ -461,23 +462,27 @@ function BackyardPlanner() {
   /* ─── PLOT PLAN APPLY ─── */
   const applyPlotPlan = (plan) => {
     const lW = plan.lotWidthFt, lD = plan.lotDepthFt;
-    const niceCellFt = [1,2,3,4,5,6,8,10].reduce((b,v) =>
-      Math.abs(v - Math.max(lW,lD)/28) < Math.abs(b - Math.max(lW,lD)/28) ? v : b);
+    // Use chosen cellFt if provided, otherwise auto-pick a nice value
+    const niceCellFt = plan.cellFt && plan.cellFt > 0
+      ? plan.cellFt
+      : [1,2,3,4,5,6,8,10].reduce((b,v) =>
+          Math.abs(v - Math.max(lW,lD)/28) < Math.abs(b - Math.max(lW,lD)/28) ? v : b);
     const niceCellM = niceCellFt * 0.3048;
     const newC = Math.ceil(lW/niceCellFt) + 2;
     const newR = Math.ceil(lD/niceCellFt) + 2;
     setCols(newC); setRows(newR); setCellM(niceCellM); setMetric(false);
     setYardName(plan.yardName || plan.address || "My Lot");
-    // Generate fence lines for chosen sides
+    const insetCells = plan.fenceInsetFt ? Math.max(0, plan.fenceInsetFt / niceCellFt) : 0;
     const fences = plan.fenceSides && plan.fenceSides.length
-      ? lotFenceLines(plan, niceCellM, plan.fenceSides)
+      ? lotFenceLines(plan, niceCellM, plan.fenceSides, plan.fenceGates || [], insetCells)
       : [];
     dispatch({type:"LOAD", p:{ground:{}, objects:[], lines:fences}});
     setSel(null);
     setLotPlan(plan);
     setShowLot(true);
     setShowPlotImport(false);
-    setToast({type:"success", msg:`Lot loaded: ${plan.lotWidthFt}×${plan.lotDepthFt}ft · ${plan.lotAreaSF.toLocaleString()} ft²${fences.length?` · ${fences.length} fence sides`:""}.`});
+    const gateCount = (plan.fenceGates || []).length;
+    setToast({type:"success", msg:`Lot loaded: ${lW}×${lD}ft · ${niceCellFt}ft/cell · ${plan.fenceSides?.length||0} fence sides${gateCount?` (${gateCount} gate${gateCount>1?"s":""})`:""}.`});
   };
 
   /* ─── EXPORT / IMPORT ─── */

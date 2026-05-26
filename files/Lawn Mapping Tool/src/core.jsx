@@ -558,22 +558,54 @@ function rescaleDesign({ground, objects, lines}, oldCellM, newCellM) {
 /* ─── LOT POLYGON → FENCE LINE ─────────────────────────────────────────── */
 // Builds a Patch line in cell coords for a fence around the lot edges.
 // `sides` is an array of side names from {front, rear, left, right}.
-function lotFenceLines(lotPlan, cellM, sides = ["rear", "left", "right"]) {
+function lotFenceLines(lotPlan, cellM, sides = ["rear", "left", "right"], gates = [], insetCells = 0) {
   if (!lotPlan?.lotWidthFt || !lotPlan?.lotDepthFt) return [];
   const ftPerCell = cellM * 3.28084;
-  // Lot starts 1 cell in from grid edge (matching draw)
-  const ox = 1, oy = 1;
+  // Coordinate system:
+  //   Lot polygon (in ft) is rendered with a 1-cell visual padding around it.
+  //   Lines are drawn at "cell center" (x*cs + cs/2), so to land at the lot's
+  //   real-world edge we offset by (1 - 0.5) = 0.5 cells.
+  const PAD = 1;
+  const ox = PAD - 0.5;
+  const oy = PAD - 0.5;
   const W  = lotPlan.lotWidthFt / ftPerCell;
   const D  = lotPlan.lotDepthFt / ftPerCell;
-  const tl = {x: Math.round(ox), y: Math.round(oy)};
-  const tr = {x: Math.round(ox + W), y: Math.round(oy)};
-  const bl = {x: Math.round(ox), y: Math.round(oy + D)};
-  const br = {x: Math.round(ox + W), y: Math.round(oy + D)};
+  const inset = Math.max(0, insetCells); // float, no rounding
+  const xL = ox + inset;
+  const xR = ox + W - inset;
+  const yT = oy + inset;
+  const yB = oy + D - inset;
   const lines = [];
-  if (sides.includes("rear"))  lines.push({type:"fence", points:[tl, tr], auto:true, source:"plot"});
-  if (sides.includes("left"))  lines.push({type:"fence", points:[tl, bl], auto:true, source:"plot"});
-  if (sides.includes("right")) lines.push({type:"fence", points:[tr, br], auto:true, source:"plot"});
-  if (sides.includes("front")) lines.push({type:"fence", points:[bl, br], auto:true, source:"plot"});
+  // Gate: ~4 ft wide opening — keep as floats so the gap matches the real spec.
+  const gateGapCells = 4 / ftPerCell;
+  const makeSide = (side, a, b) => {
+    if (!gates.includes(side)) {
+      lines.push({type:"fence", points:[a, b], auto:true, source:"plot", side});
+      return;
+    }
+    const dx = b.x - a.x, dy = b.y - a.y;
+    const len = Math.hypot(dx, dy);
+    const halfGap = Math.min(gateGapCells / 2, len / 3);
+    if (halfGap < 0.5) {
+      lines.push({type:"fence", points:[a, b], auto:true, source:"plot", side});
+      return;
+    }
+    const ux = dx / len, uy = dy / len;
+    const mid = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 };
+    const g1 = { x: mid.x - ux * halfGap, y: mid.y - uy * halfGap };
+    const g2 = { x: mid.x + ux * halfGap, y: mid.y + uy * halfGap };
+    lines.push({type:"fence", points:[a, g1], auto:true, source:"plot", side});
+    lines.push({type:"fence", points:[g2, b], auto:true, source:"plot", side});
+    lines.push({type:"measure", points:[g1, g2], auto:true, source:"plot", side, measureLabel:"gate"});
+  };
+  const tl = {x: xL, y: yT};
+  const tr = {x: xR, y: yT};
+  const bl = {x: xL, y: yB};
+  const br = {x: xR, y: yB};
+  if (sides.includes("rear"))  makeSide("rear",  tl, tr);
+  if (sides.includes("left"))  makeSide("left",  tl, bl);
+  if (sides.includes("right")) makeSide("right", tr, br);
+  if (sides.includes("front")) makeSide("front", bl, br);
   return lines;
 }
 

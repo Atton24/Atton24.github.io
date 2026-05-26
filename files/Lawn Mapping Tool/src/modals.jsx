@@ -243,8 +243,11 @@ function PlotImportModal({T, onClose, onApply, metric}) {
   const [m_houseH, setM_houseH] = useStateMod(40);
   const [m_setbackFront, setM_setbackFront] = useStateMod(20);
   const [m_addr, setM_addr] = useStateMod("");
-  // Optional perimeter features detected/included from plan
   const [m_fenceSides, setM_fenceSides] = useStateMod({rear:true, left:true, right:true, front:false});
+  const [m_fenceGates, setM_fenceGates] = useStateMod({rear:false, left:false, right:false, front:false});
+  const [m_fenceInsetFt, setM_fenceInsetFt] = useStateMod(0); // 0 = on property line
+  // Initial cell scale (in ft per cell). Default to 1ft for fence-aligned imports.
+  const [m_cellFt, setM_cellFt] = useStateMod(1);
 
   useEffectMod(() => {
     if (stage !== "analyzing") return;
@@ -358,6 +361,7 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
     const houseX = (lW - hW) / 2;
     const houseY = lD - hH - sb;
     const fenceSidesArr = Object.entries(m_fenceSides).filter(([,v])=>v).map(([k])=>k);
+    const fenceGatesArr = Object.entries(m_fenceGates).filter(([k,v])=>v && fenceSidesArr.includes(k)).map(([k])=>k);
     const finalPlan = {
       yardName: m_addr || plan?.yardName || "My Lot",
       address: m_addr,
@@ -373,6 +377,9 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
       scale: plan?.scale,
       sourceFile: plan?.sourceFile,
       fenceSides: fenceSidesArr,
+      fenceGates: fenceGatesArr,
+      fenceInsetFt: +m_fenceInsetFt || 0,
+      cellFt: +m_cellFt || 1,
     };
     onApply(finalPlan);
   };
@@ -563,23 +570,110 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
 
           <div>
             <SectionLabel T={T}>Perimeter Fence</SectionLabel>
-            <div style={{fontSize:11.5,color:T.text2,marginBottom:7,lineHeight:1.5}}>Pick which sides to draw as fence on the canvas.</div>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5}}>
+            <div style={{fontSize:11.5,color:T.text2,marginBottom:7,lineHeight:1.5}}>Toggle sides; click “Gate” on a fenced side to add a 4-ft opening.</div>
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:5,marginBottom:10}}>
               {[["rear","Rear"],["left","Left side"],["right","Right side"],["front","Front (street)"]].map(([k,l])=>{
                 const on = m_fenceSides[k];
+                const gate = m_fenceGates[k];
                 return (
-                  <button key={k} onClick={()=>setM_fenceSides(s=>({...s,[k]:!s[k]}))} style={{
-                    display:"flex",alignItems:"center",gap:7,padding:"7px 10px",
-                    border:`1.5px solid ${on?T.primary:T.border}`,borderRadius:9,cursor:"pointer",
-                    background:on?T.primaryBg:T.bg,color:T.text,fontFamily:"var(--font-sans)",
-                    fontSize:12,fontWeight:on?600:500,
+                  <div key={k} style={{
+                    display:"flex",alignItems:"stretch",
+                    border:`1.5px solid ${on?T.primary:T.border}`,borderRadius:9,
+                    background:on?T.primaryBg:T.bg,overflow:"hidden",
                   }}>
-                    <span style={{
-                      width:14,height:14,borderRadius:4,border:`1.5px solid ${on?T.primary:T.text3}`,
-                      background:on?T.primary:"transparent",
-                      display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",flexShrink:0,
-                    }}>{on && <Icon name="check" size={10}/>}</span>
-                    {l}
+                    <button onClick={()=>setM_fenceSides(s=>({...s,[k]:!s[k]}))} style={{
+                      flex:1,display:"flex",alignItems:"center",gap:7,padding:"7px 10px",
+                      border:"none",background:"transparent",cursor:"pointer",
+                      color:T.text,fontFamily:"var(--font-sans)",
+                      fontSize:12,fontWeight:on?600:500,textAlign:"left",
+                    }}>
+                      <span style={{
+                        width:14,height:14,borderRadius:4,border:`1.5px solid ${on?T.primary:T.text3}`,
+                        background:on?T.primary:"transparent",
+                        display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",flexShrink:0,
+                      }}>{on && <Icon name="check" size={10}/>}</span>
+                      {l}
+                    </button>
+                    {on && (
+                      <button onClick={()=>setM_fenceGates(g=>({...g,[k]:!g[k]}))} title="Toggle gate" style={{
+                        padding:"4px 9px",fontSize:10,fontWeight:700,letterSpacing:".05em",
+                        borderTopRightRadius:7,borderBottomRightRadius:7,
+                        border:"none",cursor:"pointer",
+                        background:gate ? T.accent : "transparent",
+                        color:gate ? "#fff" : T.text3,
+                        borderLeft:`1px solid ${on?T.primary:T.border}`,
+                        fontFamily:"var(--font-sans)",textTransform:"uppercase",
+                      }}>{gate?"✓ gate":"+ gate"}</button>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <div>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:11.5,marginBottom:3}}>
+                <span style={{color:T.text2,fontWeight:500}}>Inset from property line</span>
+                <span style={{fontFamily:"var(--font-mono)",fontWeight:600,color:T.text}}>{m_fenceInsetFt} ft</span>
+              </div>
+              <input type="range" min={0} max={6} step={0.5} value={m_fenceInsetFt}
+                onChange={e=>setM_fenceInsetFt(+e.target.value)}
+                style={{width:"100%",accentColor:T.primary}}/>
+              <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:T.text3,fontFamily:"var(--font-mono)"}}>
+                <span>on the line</span>
+                <span>well inside</span>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <SectionLabel T={T}>Initial Cell Scale</SectionLabel>
+            {(() => {
+              const lotMax = Math.max(+m_lotW || 0, +m_lotD || 0);
+              const hasFineWork = (+m_fenceInsetFt > 0 && +m_fenceInsetFt < 2)
+                || Object.values(m_fenceGates).some(v=>v);
+              const rec = hasFineWork ? 1 : lotMax > 200 ? 5 : lotMax > 100 ? 2 : 1;
+              const recCols = Math.ceil((+m_lotW||56)/rec) + 2;
+              const recRows = Math.ceil((+m_lotD||148)/rec) + 2;
+              return (
+                <div style={{padding:"9px 12px",background:T.primaryBg,borderRadius:10,border:`1px solid ${T.primary}`,fontSize:11.5,color:T.text,marginBottom:9,display:"flex",alignItems:"center",gap:9,lineHeight:1.45}}>
+                  <Icon name="sparkle" size={14} color={T.primary}/>
+                  <div style={{flex:1}}>
+                    <strong style={{color:T.primary}}>Recommended:</strong> {rec} ft / cell
+                    <span style={{color:T.text2}}> · {recCols}×{recRows} grid · {hasFineWork ? "matches your fence detail" : "good balance of speed + precision"}</span>
+                  </div>
+                  {Math.abs(m_cellFt - rec) > 0.05 && (
+                    <button onClick={()=>setM_cellFt(rec)} style={{
+                      padding:"4px 10px",fontSize:11,fontWeight:700,border:"none",borderRadius:7,
+                      background:T.primary,color:"#fff",cursor:"pointer",fontFamily:"var(--font-sans)",flexShrink:0,
+                    }}>Use {rec} ft</button>
+                  )}
+                </div>
+              );
+            })()}
+            <div style={{fontSize:11.5,color:T.text2,marginBottom:7,lineHeight:1.5}}>How much real-world area each grid cell covers. Fence positions use exact ft regardless of cell size, but smaller cells let you paint and place objects more precisely.</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(4, 1fr)",gap:5}}>
+              {[
+                {v:0.5, l:"½ ft"},
+                {v:1,   l:"1 ft"},
+                {v:2,   l:"2 ft"},
+                {v:3,   l:"3 ft"},
+                {v:5,   l:"5 ft"},
+                {v:8,   l:"8 ft"},
+                {v:10,  l:"10 ft"},
+                {v:15,  l:"15 ft"},
+              ].map(o=>{
+                const active = Math.abs(m_cellFt - o.v) < 0.05;
+                const lotW = +m_lotW || 56, lotD = +m_lotD || 148;
+                const cols = Math.ceil(lotW/o.v) + 2;
+                const rs = Math.ceil(lotD/o.v) + 2;
+                return (
+                  <button key={o.v} onClick={()=>setM_cellFt(o.v)} style={{
+                    padding:"7px 4px",borderRadius:8,cursor:"pointer",
+                    border:`1.5px solid ${active?T.primary:T.border}`,
+                    background:active?T.primaryBg:T.bg,color:T.text,
+                    fontFamily:"var(--font-sans)",textAlign:"center",
+                  }}>
+                    <div style={{fontSize:12.5,fontWeight:700,color:active?T.primary:T.text}}>{o.l}</div>
+                    <div style={{fontSize:9.5,color:active?T.primary:T.text3,fontFamily:"var(--font-mono)",marginTop:1,fontWeight:600}}>{cols}×{rs}</div>
                   </button>
                 );
               })}
@@ -603,11 +697,38 @@ Generate a plausible plot-plan estimate as a JSON object with these fields. Use 
               {/* Lot */}
               <rect x={cx} y={cy} width={lotPxW} height={lotPxD}
                 fill={hexToRgba(T.primary, .08)} stroke={T.primary} strokeWidth={1.5} strokeDasharray="5 3"/>
-              {/* Fence sides */}
-              {m_fenceSides.rear  && <line x1={cx} y1={cy} x2={cx+lotPxW} y2={cy} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
-              {m_fenceSides.left  && <line x1={cx} y1={cy} x2={cx} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
-              {m_fenceSides.right && <line x1={cx+lotPxW} y1={cy} x2={cx+lotPxW} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
-              {m_fenceSides.front && <line x1={cx} y1={cy+lotPxD} x2={cx+lotPxW} y2={cy+lotPxD} stroke={"#8B6030"} strokeWidth={2.5} strokeLinecap="round"/>}
+              {/* Fence sides (with inset + optional gate gap) */}
+              {(() => {
+                const insetPx = (+m_fenceInsetFt || 0) * scale;
+                const xL = cx + insetPx, xR = cx + lotPxW - insetPx;
+                const yT = cy + insetPx, yB = cy + lotPxD - insetPx;
+                const gateGapPx = Math.max(6, 4 * scale);
+                const drawSide = (side, x1, y1, x2, y2) => {
+                  if (!m_fenceSides[side]) return null;
+                  if (!m_fenceGates[side]) {
+                    return <line key={side} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#8B6030" strokeWidth={2.5} strokeLinecap="round"/>;
+                  }
+                  // Compute midpoint, split with gate gap
+                  const mx = (x1+x2)/2, my = (y1+y2)/2;
+                  const dx = x2-x1, dy = y2-y1;
+                  const len = Math.sqrt(dx*dx + dy*dy);
+                  const halfGap = Math.min(gateGapPx/2, len/3);
+                  const ux = dx/len, uy = dy/len;
+                  const g1 = {x: mx - ux*halfGap, y: my - uy*halfGap};
+                  const g2 = {x: mx + ux*halfGap, y: my + uy*halfGap};
+                  return <g key={side}>
+                    <line x1={x1} y1={y1} x2={g1.x} y2={g1.y} stroke="#8B6030" strokeWidth={2.5} strokeLinecap="round"/>
+                    <line x1={g2.x} y1={g2.y} x2={x2} y2={y2} stroke="#8B6030" strokeWidth={2.5} strokeLinecap="round"/>
+                    <line x1={g1.x} y1={g1.y} x2={g2.x} y2={g2.y} stroke={T.accent} strokeWidth={1.5} strokeDasharray="2 2" strokeLinecap="round"/>
+                  </g>;
+                };
+                return <>
+                  {drawSide("rear",  xL, yT, xR, yT)}
+                  {drawSide("left",  xL, yT, xL, yB)}
+                  {drawSide("right", xR, yT, xR, yB)}
+                  {drawSide("front", xL, yB, xR, yB)}
+                </>;
+              })()}
               {/* House */}
               <rect x={cx+houseX} y={cy+houseY} width={housePxW} height={housePxD}
                 fill={hexToRgba(T.text2, .25)} stroke={T.text} strokeWidth={1.5}/>
