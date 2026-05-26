@@ -464,6 +464,7 @@ const LT = [
 ];
 const UT = [
   {id:"select", label:"Select", tip:"Click objects or lines to select. Delete key removes."},
+  {id:"pan",    label:"Pan",    tip:"Click and drag to move the view around. Useful when zoomed in."},
   {id:"paint",  label:"Paint",  tip:"Freehand-paint ground type."},
   {id:"rect",   label:"Rect Fill", tip:"Drag a rectangle to fill an area."},
   {id:"erase",  label:"Erase",  tip:"Erase ground, objects, lines."},

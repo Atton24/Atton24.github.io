@@ -8,6 +8,8 @@ const { useState, useRef, useEffect, useCallback, useReducer, useMemo } = React;
 function BackyardPlanner() {
   const canvasRef    = useRef(null);
   const containerRef = useRef(null);
+  const scrollRef    = useRef(null);
+  const panState     = useRef(null); // {startX, startY, startScrollLeft, startScrollTop}
 
   // ── Starter content ──
   const STARTER = useMemo(() => makeStarterYard(20, 15), []);
@@ -262,6 +264,16 @@ function BackyardPlanner() {
   }, [activeTool, activeGround, push]);
 
   const handleMouseDown = e => {
+    // PAN: start scroll-drag regardless of where in the canvas you click
+    if (activeTool === "pan") {
+      panState.current = {
+        startX: e.clientX,
+        startY: e.clientY,
+        startScrollLeft: scrollRef.current?.scrollLeft || 0,
+        startScrollTop:  scrollRef.current?.scrollTop  || 0,
+      };
+      return;
+    }
     const cell = getCell(e);
     if (!cell) return;
 
@@ -314,6 +326,13 @@ function BackyardPlanner() {
   };
 
   const handleMouseMove = e => {
+    // PAN: drag the scroll container
+    if (activeTool === "pan" && panState.current && scrollRef.current) {
+      const p = panState.current;
+      scrollRef.current.scrollLeft = p.startScrollLeft - (e.clientX - p.startX);
+      scrollRef.current.scrollTop  = p.startScrollTop  - (e.clientY - p.startY);
+      return;
+    }
     const cell = getCell(e);
     setHoverCell(cell);
     if (!cell) return;
@@ -347,6 +366,11 @@ function BackyardPlanner() {
   };
 
   const handleMouseUp = () => {
+    // PAN: end scroll-drag
+    if (activeTool === "pan") {
+      panState.current = null;
+      return;
+    }
     if (activeTool==="rect" && rectDragging && rectStart && rectEnd) {
       const x1=Math.min(rectStart.x,rectEnd.x), y1=Math.min(rectStart.y,rectEnd.y);
       const x2=Math.max(rectStart.x,rectEnd.x), y2=Math.max(rectStart.y,rectEnd.y);
@@ -360,6 +384,9 @@ function BackyardPlanner() {
   };
 
   const handleMouseLeave = () => {
+    if (activeTool === "pan") {
+      panState.current = null;
+    }
     isDragging.current = false;
     setHoverCell(null);
     setRectDragging(false); setRectStart(null); setRectEnd(null);
@@ -1192,7 +1219,7 @@ function BackyardPlanner() {
         </div>
 
         {/* CANVAS AREA */}
-        <div style={{
+        <div ref={scrollRef} style={{
           flex:1, overflow:"auto", padding: isMobile ? 10 : 24, background:T.canvas,
           position:"relative",
           backgroundImage: dark
@@ -1216,7 +1243,7 @@ function BackyardPlanner() {
           }}>
             <canvas ref={canvasRef}
               style={{display:"block",
-                cursor: activeTool==="select"?"pointer":activeTool==="rect"?"crosshair":activeTool==="erase"?"cell":"crosshair",
+                cursor: activeTool==="pan" ? (panState.current?"grabbing":"grab") : activeTool==="select"?"pointer":activeTool==="rect"?"crosshair":activeTool==="erase"?"cell":"crosshair",
               }}
               onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp} onMouseLeave={handleMouseLeave}

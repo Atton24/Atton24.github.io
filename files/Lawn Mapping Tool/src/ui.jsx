@@ -12,6 +12,7 @@ const ICONS = {
   rect:  <><rect x="3.5" y="6" width="17" height="13" rx="2" stroke="currentColor" strokeWidth="1.7" strokeDasharray="3 2" fill="none"/><circle cx="3.5" cy="6" r="1.5" fill="currentColor"/><circle cx="20.5" cy="19" r="1.5" fill="currentColor"/></>,
   erase: <><path d="M16 7l-9 9 4 4h4l5-5-4-4M3 20h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
   select:<><path d="M5 4l5 16 3-7 7-3z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" fill="none"/></>,
+  pan:   <><path d="M9 11V5a2 2 0 0 1 4 0v8M13 8a2 2 0 0 1 4 0v5M17 10a2 2 0 0 1 4 0v6a6 6 0 0 1-6 6h-1a6 6 0 0 1-5.5-3.6L5 14a2 2 0 1 1 3.4-2L10 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
   tree:  <><path d="M12 3l5 8h-3l4 6h-4l3 4H7l3-4H6l4-6H7z" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round" fill="none"/><path d="M11 21h2" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>,
   shrub: <><path d="M5 17c-2 0-3-2-2-4 0-2 2-3 3-3 0-2 2-4 4-4s4 2 4 4c2 0 4 1 4 3s-1 4-3 4M5 17h14M9 17v3M15 17v3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
   flower:<><circle cx="12" cy="12" r="2" fill="none" stroke="currentColor" strokeWidth="1.5"/><path d="M12 7c2 0 3 1 3 3M12 17c2 0 3-1 3-3M12 7c-2 0-3 1-3 3M12 17c-2 0-3-1-3-3M7 12c0-2 1-3 3-3M17 12c0-2-1-3-3-3M7 12c0 2 1 3 3 3M17 12c0 2-1 3-3 3" stroke="currentColor" strokeWidth="1.5" fill="none"/></>,
@@ -61,7 +62,7 @@ const ICONS = {
 
 // Map tool IDs to icons
 const TOOL_ICON = {
-  select:"select", paint:"paint", rect:"rect", erase:"erase",
+  select:"select", pan:"pan", paint:"paint", rect:"rect", erase:"erase",
   tree:"tree", shrub:"shrub", flowerbed:"flower", raised_bed:"bed",
   sprinkler:"spray", drip_emitter:"drip", watersource:"tap",
   hose_reel:"hose", pump:"pump", light:"light", bench:"bench",
