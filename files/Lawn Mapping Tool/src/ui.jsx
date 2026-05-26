@@ -10,6 +10,7 @@ const ICONS = {
   leaf:  <path d="M3 21c0-8 6-15 18-18-2 11-9 18-18 18zM3 21c4-4 8-7 13-9" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
   paint: <path d="M4 14l8-8 6 6-8 8H4v-6zm10-10l3-3 4 4-3 3M6 16l4 4" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none"/>,
   rect:  <><rect x="3.5" y="6" width="17" height="13" rx="2" stroke="currentColor" strokeWidth="1.7" strokeDasharray="3 2" fill="none"/><circle cx="3.5" cy="6" r="1.5" fill="currentColor"/><circle cx="20.5" cy="19" r="1.5" fill="currentColor"/></>,
+  rect_erase: <><rect x="3.5" y="6" width="17" height="13" rx="2" stroke="currentColor" strokeWidth="1.7" strokeDasharray="3 2" fill="none"/><path d="M8 10l8 5M16 10l-8 5" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></>,
   erase: <><path d="M16 7l-9 9 4 4h4l5-5-4-4M3 20h8" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
   select:<><path d="M5 4l5 16 3-7 7-3z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" fill="none"/></>,
   pan:   <><path d="M9 11V5a2 2 0 0 1 4 0v8M13 8a2 2 0 0 1 4 0v5M17 10a2 2 0 0 1 4 0v6a6 6 0 0 1-6 6h-1a6 6 0 0 1-5.5-3.6L5 14a2 2 0 1 1 3.4-2L10 14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="none"/></>,
@@ -31,6 +32,7 @@ const ICONS = {
   pool:  <><ellipse cx="12" cy="14" rx="8" ry="5" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M6 11s1-1 2-1 2 1 4 1 3-1 4-1 2 1 2 1" stroke="currentColor" strokeWidth="1.3" fill="none"/></>,
   compost:<><rect x="4" y="6" width="16" height="14" rx="1.5" stroke="currentColor" strokeWidth="1.5" fill="none"/><path d="M4 11h16M4 16h16M9 6v14M15 6v14" stroke="currentColor" strokeWidth="1.2" fill="none"/></>,
   fence: <><path d="M4 9l2-3 2 3v11H4zM10 9l2-3 2 3v11h-4zM16 9l2-3 2 3v11h-4zM2 14h20M2 17h20" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none"/></>,
+  gate:  <><path d="M4 9v11M20 9v11M4 12c4 0 8 1.5 12 5l4 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" fill="none"/><path d="M4 8h3M17 8h3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/></>,
   path:  <><path d="M5 4c0 4 14 4 14 8s-14 4-14 8" stroke="currentColor" strokeWidth="2" strokeLinecap="round" fill="none" strokeDasharray="1 4"/></>,
   wall:  <><path d="M3 6h18M3 12h18M3 18h18M9 6v6M15 6v6M6 12v6M12 12v6M18 12v6" stroke="currentColor" strokeWidth="1.4" fill="none"/></>,
   hedge: <><path d="M3 18c0-4 3-6 5-6 0-3 2-5 4-5s4 2 4 5c3 0 5 2 5 6H3z" stroke="currentColor" strokeWidth="1.4" strokeLinejoin="round" fill="none"/></>,
@@ -62,13 +64,13 @@ const ICONS = {
 
 // Map tool IDs to icons
 const TOOL_ICON = {
-  select:"select", pan:"pan", paint:"paint", rect:"rect", erase:"erase",
+  select:"select", pan:"pan", paint:"paint", rect:"rect", erase:"erase", rect_erase:"rect_erase",
   tree:"tree", shrub:"shrub", flowerbed:"flower", raised_bed:"bed",
   sprinkler:"spray", drip_emitter:"drip", watersource:"tap",
   hose_reel:"hose", pump:"pump", light:"light", bench:"bench",
   firepit:"fire", gazebo:"gazebo", shed:"shed", pool:"pool",
   compost:"compost", house:"house",
-  irrigation:"pipe", drip_line:"drip2", fence:"fence", path:"path",
+  irrigation:"pipe", drip_line:"drip2", fence:"fence", gate:"gate", path:"path",
   wall:"wall", hedge:"hedge", powerline:"power", measure:"ruler",
 };
 

@@ -91,6 +91,25 @@ const GROUND_COLORS = {
   decking:"#C88E58", turf:"#8FCE5F", pebbles:"#B8B2A0",
 };
 
+/* ─── SCALABLE OBJECT DEFAULTS (rectangular footprints in real-world feet) ── */
+const SCALABLE_DEFAULTS = {
+  house:      { wFt:40, dFt:30 },
+  shed:       { wFt:10, dFt:8  },
+  pool:       { wFt:25, dFt:15 },
+  gazebo:     { wFt:12, dFt:12 },
+  raised_bed: { wFt:8,  dFt:4  },
+};
+const SCALABLE_TYPES = Object.keys(SCALABLE_DEFAULTS);
+function scalableDefaultCells(type, cellM) {
+  const def = SCALABLE_DEFAULTS[type];
+  if (!def) return null;
+  const ftPerCell = cellM * 3.28084;
+  return {
+    width: Math.max(2, Math.round(def.wFt / ftPerCell)),
+    depth: Math.max(2, Math.round(def.dFt / ftPerCell)),
+  };
+}
+
 /* ─── OBJECT DRAW ──────────────────────────────────────────────────────── */
 function drawObj(ctx, obj, cs, sel, dark) {
   // ── HOUSE (rectangular footprint with width/depth in cells) ───────────
@@ -99,23 +118,19 @@ function drawObj(ctx, obj, cs, sel, dark) {
     const h = (obj.depth || 6) * cs;
     const x = obj.x * cs, y = obj.y * cs;
     if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
-    // Body
     ctx.fillStyle   = dark ? "rgba(148,163,184,.28)" : "rgba(120,130,140,.22)";
     ctx.fillRect(x, y, w, h);
     ctx.strokeStyle = dark ? "rgba(200,210,220,.85)" : "rgba(70,80,90,.9)";
     ctx.lineWidth   = 2.5;
     ctx.strokeRect(x, y, w, h);
-    // Inset detail line
     ctx.strokeStyle = dark ? "rgba(148,163,184,.4)" : "rgba(70,80,90,.35)";
     ctx.lineWidth   = 1;
     ctx.strokeRect(x+5, y+5, w-10, h-10);
-    // Label
     const fontSize = Math.max(11, Math.min(22, Math.min(w, h)/4));
     ctx.fillStyle = dark ? "rgba(230,235,240,.95)" : "rgba(50,60,70,.95)";
     ctx.font = `700 ${fontSize}px var(--font-sans, sans-serif)`;
     ctx.textAlign = "center"; ctx.textBaseline = "middle";
     ctx.fillText("HOUSE", x+w/2, y+h/2 - fontSize*0.35);
-    // Door indicator (south face)
     const doorW = Math.min(w * 0.18, 30);
     ctx.strokeStyle = dark ? "rgba(200,210,220,.7)" : "rgba(60,70,80,.65)";
     ctx.lineWidth = 2.5;
@@ -126,6 +141,103 @@ function drawObj(ctx, obj, cs, sel, dark) {
     if (sel) ctx.restore();
     return;
   }
+
+  // ── SHED (scalable rectangle with roof + door) ─────────────────────
+  if (obj.type === "shed") {
+    const w = (obj.width || 3) * cs;
+    const h = (obj.depth || 3) * cs;
+    const x = obj.x * cs, y = obj.y * cs;
+    if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
+    ctx.fillStyle="#8B5530"; ctx.strokeStyle="#5A3010"; ctx.lineWidth=2;
+    ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+    // Roof line
+    ctx.beginPath();
+    ctx.moveTo(x + w*0.15, y);
+    ctx.lineTo(x + w/2, y - Math.min(h*.35, 18));
+    ctx.lineTo(x + w*0.85, y);
+    ctx.strokeStyle="#6A3A10"; ctx.lineWidth=2; ctx.stroke();
+    // Door
+    const dW = Math.min(w*0.22, 22), dH = Math.min(h*0.55, 26);
+    ctx.fillStyle="#AA7040";
+    ctx.fillRect(x + w/2 - dW/2, y + h - dH, dW, dH);
+    if (sel) ctx.restore();
+    return;
+  }
+
+  // ── POOL (scalable ellipse) ──────────────────────────────────────────
+  if (obj.type === "pool") {
+    const w = (obj.width || 5) * cs;
+    const h = (obj.depth || 3) * cs;
+    const cx = obj.x*cs + w/2, cy = obj.y*cs + h/2;
+    if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
+    // Coping
+    ctx.fillStyle="#CFC9BB";
+    ctx.beginPath(); ctx.ellipse(cx, cy, w/2, h/2, 0, 0, Math.PI*2); ctx.fill();
+    // Water
+    ctx.fillStyle="#0F5798";
+    ctx.beginPath(); ctx.ellipse(cx, cy, w/2-4, h/2-4, 0, 0, Math.PI*2); ctx.fill();
+    // Highlight
+    ctx.strokeStyle="#5BB5F0"; ctx.lineWidth=1.5;
+    for (let i=0; i<2; i++) {
+      ctx.beginPath();
+      ctx.ellipse(cx, cy - h*0.15 + i*8, w*0.32, 3, 0, 0, Math.PI*2);
+      ctx.stroke();
+    }
+    if (sel) ctx.restore();
+    return;
+  }
+
+  // ── GAZEBO (scalable octagon) ────────────────────────────────────────
+  if (obj.type === "gazebo") {
+    const w = (obj.width || 3) * cs;
+    const h = (obj.depth || 3) * cs;
+    const cx = obj.x*cs + w/2, cy = obj.y*cs + h/2;
+    if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
+    const rx = w/2, ry = h/2;
+    ctx.beginPath();
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2 - Math.PI/2;
+      const px = cx + Math.cos(a)*rx, py = cy + Math.sin(a)*ry;
+      if (i===0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+    ctx.fillStyle="rgba(180,140,80,.5)";
+    ctx.fill();
+    ctx.strokeStyle="#8B6030"; ctx.lineWidth=2.5; ctx.stroke();
+    // Roof spokes
+    ctx.strokeStyle="#6A4820"; ctx.lineWidth=1.5;
+    for (let i=0; i<8; i++) {
+      const a = (i/8)*Math.PI*2 - Math.PI/2;
+      ctx.beginPath(); ctx.moveTo(cx, cy);
+      ctx.lineTo(cx + Math.cos(a)*rx, cy + Math.sin(a)*ry); ctx.stroke();
+    }
+    ctx.fillStyle="#8B6030";
+    ctx.beginPath(); ctx.arc(cx, cy, Math.min(rx,ry)*0.18, 0, Math.PI*2); ctx.fill();
+    if (sel) ctx.restore();
+    return;
+  }
+
+  // ── RAISED BED (scalable rectangle with soil + greenery) ───────────────────
+  if (obj.type === "raised_bed") {
+    const w = (obj.width || 2) * cs;
+    const h = (obj.depth || 1) * cs;
+    const x = obj.x*cs, y = obj.y*cs;
+    if (sel) { ctx.save(); ctx.shadowColor = dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur = 14; }
+    ctx.fillStyle="#8B4513"; ctx.strokeStyle="#5C2D0A"; ctx.lineWidth=2;
+    ctx.fillRect(x, y, w, h); ctx.strokeRect(x, y, w, h);
+    const pad = Math.min(w, h) * 0.15;
+    ctx.fillStyle="#5A8C3F";
+    ctx.fillRect(x+pad, y+pad, w-pad*2, h-pad*2);
+    // Rows of greenery
+    ctx.fillStyle="#7BB554";
+    const rows = Math.max(1, Math.floor((h-pad*2)/10));
+    for (let i=0; i<rows; i++) {
+      ctx.fillRect(x+pad+3, y+pad+i*((h-pad*2)/rows)+1, w-pad*2-6, 2);
+    }
+    if (sel) ctx.restore();
+    return;
+  }
+
   const cx = obj.x*cs+cs/2, cy = obj.y*cs+cs/2, r = (obj.size||1)*cs*.44;
   if (sel) { ctx.save(); ctx.shadowColor=dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur=14; }
   switch (obj.type) {
@@ -167,23 +279,6 @@ function drawObj(ctx, obj, cs, sel, dark) {
       ctx.fillStyle="#82D4FF"; ctx.font=`bold ${Math.max(11,cs*.28)}px var(--font-sans, sans-serif)`;
       ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.fillText("W",cx,cy+1);
       ctx.fillStyle="rgba(60,170,255,.18)"; ctx.beginPath(); ctx.arc(cx,cy,cs*.55,0,Math.PI*2); ctx.fill(); break;
-    case "raised_bed":
-      ctx.fillStyle="#8B4513"; ctx.strokeStyle="#5C2D0A"; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.roundRect(cx-r*.9,cy-r*.6,r*1.8,r*1.2,4); ctx.fill(); ctx.stroke();
-      ctx.fillStyle="#5A8C3F"; ctx.beginPath(); ctx.roundRect(cx-r*.8,cy-r*.5,r*1.6,r,3); ctx.fill(); break;
-    case "gazebo":
-      ctx.fillStyle="rgba(180,140,80,.5)"; ctx.strokeStyle="#8B6030"; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.arc(cx,cy,r,0,Math.PI*2); ctx.fill(); ctx.stroke();
-      ctx.strokeStyle="#6A4820"; ctx.lineWidth=1.5;
-      for(let i=0;i<8;i++){const a=(i/8)*Math.PI*2;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(cx+Math.cos(a)*r,cy+Math.sin(a)*r);ctx.stroke();}
-      ctx.fillStyle="#8B6030"; ctx.beginPath(); ctx.arc(cx,cy,r*.15,0,Math.PI*2); ctx.fill(); break;
-    case "shed": {
-      const sw=r*1.8, sh=r*1.4;
-      ctx.fillStyle="#8B5530"; ctx.strokeStyle="#5A3010"; ctx.lineWidth=2;
-      ctx.beginPath(); ctx.rect(cx-sw/2,cy-sh/2,sw,sh); ctx.fill(); ctx.stroke();
-      ctx.fillStyle="#6A3A10"; ctx.beginPath(); ctx.moveTo(cx-sw/2-3,cy-sh/2); ctx.lineTo(cx,cy-sh/2-r*.5); ctx.lineTo(cx+sw/2+3,cy-sh/2); ctx.closePath(); ctx.fill(); ctx.stroke();
-      ctx.fillStyle="#AA7040"; ctx.fillRect(cx-sw*.1,cy,sw*.2,sh*.45); break;
-    }
     case "bench":
       ctx.fillStyle="#C8904A"; ctx.strokeStyle="#8A5A20"; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.roundRect(cx-r*.9,cy-r*.25,r*1.8,r*.5,4); ctx.fill(); ctx.stroke();
@@ -194,9 +289,6 @@ function drawObj(ctx, obj, cs, sel, dark) {
       ctx.fillStyle="#FF6F2C"; ctx.beginPath(); ctx.arc(cx,cy,r*.38,0,Math.PI*2); ctx.fill();
       ctx.fillStyle="#FFA94A"; ctx.beginPath(); ctx.arc(cx,cy,r*.22,0,Math.PI*2); ctx.fill();
       ctx.fillStyle="#FFE48A"; ctx.beginPath(); ctx.arc(cx,cy,r*.1,0,Math.PI*2); ctx.fill(); break;
-    case "pool":
-      ctx.fillStyle="#0F5798"; ctx.beginPath(); ctx.ellipse(cx,cy,r,r*.65,0,0,Math.PI*2); ctx.fill();
-      ctx.strokeStyle="#5BB5F0"; ctx.lineWidth=2; ctx.beginPath(); ctx.ellipse(cx,cy,r,r*.65,0,0,Math.PI*2); ctx.stroke(); break;
     case "compost":
       ctx.fillStyle="#5A3A10"; ctx.strokeStyle="#3A2008"; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.roundRect(cx-r*.7,cy-r*.7,r*1.4,r*1.4,3); ctx.fill(); ctx.stroke();
@@ -237,6 +329,53 @@ function drawLine(ctx, line, cs, sel, dark) {
   if (line.points.length < 2) return;
   ctx.save();
   if (sel) { ctx.shadowColor=dark?"#86C25C":"#5A8C3F"; ctx.shadowBlur=10; }
+  // ── GATE: special rendering with posts + swing arc ────────────────────
+  if (line.type === "gate") {
+    const p0 = line.points[0], p1 = line.points[line.points.length - 1];
+    const x0 = p0.x*cs + cs/2, y0 = p0.y*cs + cs/2;
+    const x1 = p1.x*cs + cs/2, y1 = p1.y*cs + cs/2;
+    const dx = x1-x0, dy = y1-y0;
+    const len = Math.hypot(dx, dy);
+    if (len < 1) { ctx.restore(); return; }
+    const ux = dx/len, uy = dy/len;
+    const nx = -uy, ny = ux;
+    // Post squares at endpoints
+    ctx.fillStyle = "#8B6030";
+    [[x0,y0],[x1,y1]].forEach(([px,py]) => {
+      ctx.fillRect(px-4, py-4, 8, 8);
+    });
+    // Gate opening line
+    ctx.strokeStyle = "#C8904A"; ctx.lineWidth = 2;
+    ctx.setLineDash([6, 4]);
+    ctx.beginPath(); ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.stroke();
+    ctx.setLineDash([]);
+    // Swing arc — quarter circle from p0 toward p1's direction
+    ctx.strokeStyle = "#8B6030"; ctx.lineWidth = 1.2;
+    ctx.setLineDash([3, 3]);
+    const arcR = len * 0.85;
+    const startAng = Math.atan2(uy, ux);
+    ctx.beginPath();
+    ctx.arc(x0, y0, arcR, startAng, startAng + Math.PI/2);
+    ctx.stroke();
+    // Gate panel (open position, perpendicular to opening)
+    ctx.setLineDash([]);
+    ctx.strokeStyle = "#C8904A"; ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0);
+    ctx.lineTo(x0 + nx * len, y0 + ny * len);
+    ctx.stroke();
+    // Label
+    if (cs > 24) {
+      const mx = (x0+x1)/2, my = (y0+y1)/2;
+      const widthFt = (len / cs);  // in cells — will be converted by caller if needed
+      ctx.fillStyle = dark ? "#FBF9F4" : "#2A2E25";
+      ctx.font = "600 10px var(--font-mono, monospace)";
+      ctx.textAlign = "center"; ctx.textBaseline = "middle";
+      ctx.fillText(line.gateLabel || "gate", mx + nx*14, my + ny*14);
+    }
+    ctx.restore();
+    return;
+  }
   ctx.beginPath();
   ctx.moveTo(line.points[0].x*cs+cs/2, line.points[0].y*cs+cs/2);
   for (let i=1; i<line.points.length; i++) ctx.lineTo(line.points[i].x*cs+cs/2, line.points[i].y*cs+cs/2);
@@ -456,6 +595,7 @@ const LT = [
   {id:"irrigation", label:"Irrigation Pipe", tip:"Main supply pipe. Connects sprinklers to the water source."},
   {id:"drip_line",  label:"Drip Line",       tip:"Drip hose for emitters and raised beds."},
   {id:"fence",      label:"Fence",           tip:"Garden fence or boundary."},
+  {id:"gate",       label:"Gate",            tip:"Gate / fence opening. Drag to set width — the length of the line is the gate opening."},
   {id:"path",       label:"Path",            tip:"Walking path or stepping stone trail."},
   {id:"wall",       label:"Wall",            tip:"Retaining or boundary wall."},
   {id:"hedge",      label:"Hedge Row",       tip:"Living hedge — closely planted shrubs."},
@@ -463,11 +603,12 @@ const LT = [
   {id:"measure",    label:"Measure",         tip:"Draw a distance measurement. Label shows real-world length."},
 ];
 const UT = [
-  {id:"select", label:"Select", tip:"Click objects or lines to select. Delete key removes."},
-  {id:"pan",    label:"Pan",    tip:"Click and drag to move the view around. Useful when zoomed in."},
-  {id:"paint",  label:"Paint",  tip:"Freehand-paint ground type."},
-  {id:"rect",   label:"Rect Fill", tip:"Drag a rectangle to fill an area."},
-  {id:"erase",  label:"Erase",  tip:"Erase ground, objects, lines."},
+  {id:"select",     label:"Select",     tip:"Click objects or lines to select. Delete key removes."},
+  {id:"pan",        label:"Pan",        tip:"Click and drag to move the view around. Useful when zoomed in."},
+  {id:"paint",      label:"Paint",      tip:"Freehand-paint ground type."},
+  {id:"rect",       label:"Rect Fill",  tip:"Drag a rectangle to fill an area."},
+  {id:"erase",      label:"Erase",      tip:"Erase ground, objects, lines."},
+  {id:"rect_erase", label:"Rect Erase", tip:"Drag a rectangle to erase everything inside — ground, objects, and lines."},
 ];
 const ALL_TOOLS = [...UT, ...GT, ...OT, ...LT];
 const TOOL_MAP = Object.fromEntries(ALL_TOOLS.map(t=>[t.id,t]));
@@ -626,4 +767,5 @@ Object.assign(window, {
   ZONE_COLORS, ZONE_NAMES,
   YARD_PRESETS, makeStarterYard,
   rescaleDesign, lotFenceLines,
+  SCALABLE_DEFAULTS, SCALABLE_TYPES, scalableDefaultCells,
 });

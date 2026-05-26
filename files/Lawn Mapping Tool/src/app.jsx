@@ -78,6 +78,8 @@ function BackyardPlanner() {
 
   // Tabs
   const [activeTab, setActiveTab] = useState("ground");
+  // Line drawing mode: "freehand" (default, follows cursor path) or "straight" (2-point line, any angle)
+  const [lineMode, setLineMode] = useState("straight");
 
   // Lot overlay
   const [lotPlan, setLotPlan] = useState(null);
@@ -137,7 +139,35 @@ function BackyardPlanner() {
 
     // Lines
     lines.forEach((l,i) => drawLine(ctx, l, cs, sel?.kind==="line" && sel?.idx===i, dark));
-    if (currentLine && currentLine.points.length > 0) drawLine(ctx, currentLine, cs, false, dark);
+    if (currentLine && currentLine.points.length > 0) {
+      drawLine(ctx, currentLine, cs, false, dark);
+      // Live length badge while drawing
+      if (currentLine.points.length >= 2) {
+        const p0 = currentLine.points[0];
+        const p1 = currentLine.points[currentLine.points.length - 1];
+        let len = 0;
+        if (lineMode === "straight" || currentLine.type === "measure" || currentLine.type === "gate") {
+          len = Math.hypot(p1.x - p0.x, p1.y - p0.y);
+        } else {
+          for (let i = 1; i < currentLine.points.length; i++) {
+            len += Math.hypot(
+              currentLine.points[i].x - currentLine.points[i-1].x,
+              currentLine.points[i].y - currentLine.points[i-1].y,
+            );
+          }
+        }
+        const mx = (p0.x + p1.x) / 2 * cs + cs / 2;
+        const my = (p0.y + p1.y) / 2 * cs + cs / 2;
+        const label = fmt(len, cellM, metric);
+        ctx.font = "600 11.5px var(--font-mono, monospace)";
+        const w = ctx.measureText(label).width + 16;
+        ctx.fillStyle = dark ? "rgba(0,0,0,.85)" : "rgba(20,25,15,.85)";
+        ctx.beginPath(); ctx.roundRect(mx - w/2, my - 30, w, 22, 11); ctx.fill();
+        ctx.fillStyle = "#fff";
+        ctx.textAlign = "center"; ctx.textBaseline = "middle";
+        ctx.fillText(label, mx, my - 19);
+      }
+    }
 
     // Objects
     objects.forEach((o,i) => drawObj(ctx, o, cs, sel?.kind==="object" && sel?.idx===i, dark));
@@ -232,7 +262,7 @@ function BackyardPlanner() {
         }
       }
     }
-  }, [cols, rows, ground, objects, lines, currentLine, showGrid, cs, sel, hoverCell, dark, cellM, metric, zoom, activeTool, activeGround, rectStart, rectEnd, lotPlan, showLot, T]);
+  }, [cols, rows, ground, objects, lines, currentLine, showGrid, cs, sel, hoverCell, dark, cellM, metric, zoom, activeTool, activeGround, rectStart, rectEnd, lotPlan, showLot, lineMode, T]);
 
   useEffect(() => { draw(); }, [draw]);
 
@@ -301,7 +331,13 @@ function BackyardPlanner() {
           sprinklerColor: SPRINKLER_TYPES.find(t=>t.id===sprinklerType)?.color,
         }:{}),
         ...(activeTool==="drip_emitter"?{radius:1.5}:{}),
-        ...(activeTool==="house"?{width:Math.min(10, cols-cell.x-1), depth:Math.min(8, rows-cell.y-1)}:{}),
+        ...(SCALABLE_TYPES.includes(activeTool) ? (() => {
+          const def = scalableDefaultCells(activeTool, cellM);
+          return {
+            width: Math.min(def.width, cols - cell.x - 1),
+            depth: Math.min(def.depth, rows - cell.y - 1),
+          };
+        })() : {}),
       }], lines});
       if (activeTool==="house") setToast({type:"info", msg:"House placed. Switch to Select to resize via the properties panel."});
       return;
@@ -309,11 +345,11 @@ function BackyardPlanner() {
     if (activeTool === "select") {
       // Try exact-cell hit first
       let oi = objects.findIndex(o=>o.x===cell.x&&o.y===cell.y);
-      // For house objects, allow clicking anywhere inside the footprint
+      // For scalable objects (house, shed, pool, etc.), allow clicking anywhere inside footprint
       if (oi < 0) {
-        oi = objects.findIndex(o => o.type==="house"
-          && cell.x >= o.x && cell.x < o.x + (o.width||8)
-          && cell.y >= o.y && cell.y < o.y + (o.depth||6));
+        oi = objects.findIndex(o => SCALABLE_TYPES.includes(o.type)
+          && cell.x >= o.x && cell.x < o.x + (o.width || 4)
+          && cell.y >= o.y && cell.y < o.y + (o.depth || 4));
       }
       if (oi>=0) { setSel({kind:"object",idx:oi}); return; }
       const li = lines.findIndex(l=>l.points.some(p=>Math.abs(p.x-cell.x)<=1&&Math.abs(p.y-cell.y)<=1));
@@ -342,6 +378,10 @@ function BackyardPlanner() {
         if (!prev) return null;
         const last = prev.points[prev.points.length-1];
         if (last.x===cell.x && last.y===cell.y) return prev;
+        // Straight mode: keep only [start, current] — supports diagonals at any angle.
+        if (lineMode === "straight" || activeTool === "measure" || activeTool === "gate") {
+          return {...prev, points:[prev.points[0], cell]};
+        }
         return {...prev, points:[...prev.points, cell]};
       });
       return;
@@ -359,6 +399,13 @@ function BackyardPlanner() {
         const p0=line.points[0], p1=line.points[line.points.length-1];
         const dist = Math.sqrt(Math.pow(p1.x-p0.x,2)+Math.pow(p1.y-p0.y,2));
         line.measureLabel = fmt(dist, cellM, metric);
+      }
+      if (line.type === "gate") {
+        const p0=line.points[0], p1=line.points[line.points.length-1];
+        const dist = Math.sqrt(Math.pow(p1.x-p0.x,2)+Math.pow(p1.y-p0.y,2));
+        // Keep only endpoints — gate is a 2-point line.
+        line.points = [p0, p1];
+        line.gateLabel = fmt(dist, cellM, metric);
       }
       push({ground, objects, lines:[...lines, line]});
     }
@@ -569,14 +616,27 @@ function BackyardPlanner() {
 
   /* ─── EXPORT / IMPORT ─── */
   const exportDesign = () => {
-    const d = {yardName, cols, rows, cellM, metric, ground, objects, lines, lotPlan, version:5};
+    const d = {
+      yardName, cols, rows, cellM, metric,
+      ground, objects, lines, lotPlan,
+      lineMode, // preserve user's draw-mode preference
+      version: 6,
+    };
     const json = JSON.stringify(d, null, 2);
     const dataUri = "data:application/json;charset=utf-8," + encodeURIComponent(json);
     const a = document.createElement("a");
     a.href = dataUri; a.download = `${yardName.replace(/\s+/g,"_") || "garden"}.json`;
     a.style.display = "none"; document.body.appendChild(a); a.click();
     setTimeout(()=>document.body.removeChild(a), 500);
-    setToast({type:"success", msg:`Exported ${a.download}.`});
+    const diagCount = lines.filter(l => {
+      if (l.points.length < 2) return false;
+      const p0 = l.points[0], p1 = l.points[l.points.length-1];
+      // Diagonal = both x and y differ between endpoints
+      return p0.x !== p1.x && p0.y !== p1.y;
+    }).length;
+    setToast({type:"success",
+      msg: `Exported ${a.download} · ${objects.length} objects, ${lines.length} lines${diagCount?` (incl. ${diagCount} diagonal)`:""}.`,
+    });
   };
   const importDesign = () => {
     const i = document.createElement("input"); i.type="file"; i.accept=".json";
@@ -589,10 +649,25 @@ function BackyardPlanner() {
           setYardName(d.yardName||"My Garden");
           setCols(d.cols||D_COLS); setRows(d.rows||D_ROWS); setCellM(d.cellM||0.5);
           if(d.metric!==undefined) setMetric(d.metric);
-          dispatch({type:"LOAD", p:{ground:d.ground||{}, objects:d.objects||[], lines:d.lines||[]}});
+          if(d.lineMode==='freehand'||d.lineMode==='straight') setLineMode(d.lineMode);
+          // Sanitize lines: ensure points are objects with numeric x,y — preserves
+          // diagonal lines, gates, fractional fence coords from plot import, etc.
+          const cleanLines = (d.lines||[]).map(l => ({
+            ...l,
+            points: (l.points || []).map(p => ({ x: +p.x, y: +p.y })),
+          })).filter(l => l.points.length >= 1);
+          const cleanObjects = (d.objects||[]).map(o => ({...o, x: +o.x, y: +o.y}));
+          dispatch({type:"LOAD", p:{ground:d.ground||{}, objects:cleanObjects, lines:cleanLines}});
           if(d.lotPlan){setLotPlan(d.lotPlan);setShowLot(true);} else setLotPlan(null);
           setSel(null);
-          setToast({type:"success", msg:`Imported ${f.name}.`});
+          const diagCount = cleanLines.filter(l => {
+            if (l.points.length < 2) return false;
+            const p0 = l.points[0], p1 = l.points[l.points.length-1];
+            return p0.x !== p1.x && p0.y !== p1.y;
+          }).length;
+          setToast({type:"success",
+            msg: `Imported ${f.name} · ${cleanObjects.length} objects, ${cleanLines.length} lines${diagCount?` (${diagCount} diagonal)`:""}.`,
+          });
         } catch { setToast({type:"warn", msg:"Invalid file format."}); }
       };
       r.readAsText(f);
@@ -834,12 +909,38 @@ function BackyardPlanner() {
 
           {/* LINES TAB */}
           {activeTab==="lines" && (<>
-            <SectionLabel T={T}>Draw Line</SectionLabel>
+            <SectionLabel T={T}>Draw Mode</SectionLabel>
+            <div style={{display:"flex", gap:4, marginBottom:12, padding:4, background:T.bg, borderRadius:11, border:`1px solid ${T.borderSoft}`}}>
+              {[
+                ["straight","ruler","Straight","Diagonal-friendly 2-point line. Drag to set length."],
+                ["freehand","paint","Freehand","Line follows your cursor exactly — great for curves."],
+              ].map(([id,ic,lb,tip])=>{
+                const active = lineMode===id;
+                return (
+                  <Tip key={id} text={tip}>
+                    <button onClick={()=>setLineMode(id)} style={{
+                      flex:1, padding:"7px 6px", fontSize:12, fontWeight:600, border:"none",
+                      borderRadius:8, cursor:"pointer", fontFamily:"var(--font-sans)",
+                      background: active ? T.primary : "transparent",
+                      color: active ? "#fff" : T.text2,
+                      display:"inline-flex",alignItems:"center",justifyContent:"center",gap:6,
+                      boxShadow: active ? `0 1px 4px ${hexToRgba(T.primary,.35)}` : "none",
+                      transition:"all .12s",
+                    }}>
+                      <Icon name={ic} size={14}/> {lb}
+                    </button>
+                  </Tip>
+                );
+              })}
+            </div>
+            <SectionLabel T={T}>Line Type</SectionLabel>
             <div style={{display:"flex",flexDirection:"column",gap:3}}>
               {LT.map(t=><ToolBtn key={t.id} {...t}/>)}
             </div>
             <div style={{marginTop:14, padding:"11px 13px", background:T.bg, borderRadius:11, border:`1px solid ${T.borderSoft}`, fontSize:11.5, color:T.text2, lineHeight:1.65}}>
-              Drag to draw. Release or double-click to finish. Switch to <strong style={{color:T.text}}>Select</strong>, click a line, then <kbd>Del</kbd> to remove.
+              {lineMode==="straight"
+                ? <>Drag from start to end for a precise straight line at any angle. Length shows live during the drag.</>
+                : <>Drag along the path you want; release or double-click to finish.</>}
             </div>
           </>)}
 
@@ -886,6 +987,9 @@ function BackyardPlanner() {
               </button>
               <button onClick={importDesign} style={btnGhost(T)}>
                 <Icon name="upload" size={16} color={T.text2}/> Import Design (.json)
+              </button>
+              <button onClick={exportDesign} style={btnGhost(T)}>
+                <Icon name="download" size={16} color={T.text2}/> Export Design (.json)
               </button>
               <button onClick={loadStarter} style={btnGhost(T)}>
                 <Icon name="leaf" size={16} color={T.text2}/> Load Sample Yard
@@ -1060,29 +1164,36 @@ function BackyardPlanner() {
                   </>
                 );
               })()}
-              {selObj.type==="house" && (<>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
-                  <span style={{color:T.text2,fontWeight:500}}>Width</span>
-                  <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
-                    {selObj.width||8} cells · {fmt(selObj.width||8, cellM, metric)}
-                  </span>
-                </div>
-                <input type="range" min={2} max={Math.max(4, cols-(selObj.x||0)-1)} value={selObj.width||8} step={1}
-                  onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,width:+e.target.value}:o),lines})}
-                  style={{width:"100%",marginBottom:10}}/>
-                <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
-                  <span style={{color:T.text2,fontWeight:500}}>Depth</span>
-                  <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
-                    {selObj.depth||6} cells · {fmt(selObj.depth||6, cellM, metric)}
-                  </span>
-                </div>
-                <input type="range" min={2} max={Math.max(4, rows-(selObj.y||0)-1)} value={selObj.depth||6} step={1}
-                  onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,depth:+e.target.value}:o),lines})}
-                  style={{width:"100%",marginBottom:10}}/>
-                <div style={{fontSize:10.5,color:T.text3,marginBottom:6,fontFamily:"var(--font-mono)",textAlign:"center"}}>
-                  Footprint: {fmtArea((selObj.width||8)*(selObj.depth||6), cellM, metric)}
-                </div>
-              </>)}
+              {SCALABLE_TYPES.includes(selObj.type) && (() => {
+                const def = SCALABLE_DEFAULTS[selObj.type];
+                const w = selObj.width || 6;
+                const d = selObj.depth || 4;
+                return (
+                  <>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
+                      <span style={{color:T.text2,fontWeight:500}}>Width</span>
+                      <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
+                        {fmt(w, cellM, metric)} · {w}c
+                      </span>
+                    </div>
+                    <input type="range" min={2} max={Math.max(4, cols-(selObj.x||0)-1)} value={w} step={1}
+                      onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,width:+e.target.value}:o),lines})}
+                      style={{width:"100%",marginBottom:10}}/>
+                    <div style={{display:"flex",justifyContent:"space-between",fontSize:11,marginBottom:4}}>
+                      <span style={{color:T.text2,fontWeight:500}}>Depth</span>
+                      <span style={{fontFamily:"var(--font-mono)",color:T.text,fontWeight:600}}>
+                        {fmt(d, cellM, metric)} · {d}c
+                      </span>
+                    </div>
+                    <input type="range" min={2} max={Math.max(4, rows-(selObj.y||0)-1)} value={d} step={1}
+                      onChange={e=>push({ground,objects:objects.map((o,i)=>i===sel.idx?{...o,depth:+e.target.value}:o),lines})}
+                      style={{width:"100%",marginBottom:10}}/>
+                    <div style={{fontSize:10.5,color:T.text3,marginBottom:6,fontFamily:"var(--font-mono)",textAlign:"center"}}>
+                      Footprint: {fmtArea(w*d, cellM, metric)} · typical {def.wFt}×{def.dFt} ft
+                    </div>
+                  </>
+                );
+              })()}
             </>)}
             {selLine && (<>
               <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:8}}>
@@ -1095,6 +1206,42 @@ function BackyardPlanner() {
                 </div>
               </div>
             </>)}
+            {/* Include in materials toggle */}
+            {(selObj || selLine) && (() => {
+              const item = selObj || selLine;
+              const excluded = !!item.excludeFromMaterials;
+              const toggle = () => {
+                if (selObj) {
+                  push({ground, objects:objects.map((o,i)=>i===sel.idx?{...o, excludeFromMaterials: !excluded}:o), lines});
+                } else {
+                  push({ground, objects, lines:lines.map((l,i)=>i===sel.idx?{...l, excludeFromMaterials: !excluded}:l)});
+                }
+              };
+              return (
+                <button onClick={toggle} role="switch" aria-checked={!excluded} style={{
+                  display:"flex",alignItems:"center",gap:9,width:"100%",
+                  padding:"7px 9px",marginBottom:7,
+                  background:T.bgAlt,border:`1px solid ${T.borderSoft}`,borderRadius:9,
+                  cursor:"pointer",color:T.text,fontFamily:"var(--font-sans)",fontSize:12,
+                  textAlign:"left",
+                }}>
+                  <span style={{
+                    flexShrink:0,width:32,height:18,padding:2,borderRadius:999,
+                    background: excluded ? T.border : T.primary,
+                    position:"relative",transition:"background .15s",
+                  }}>
+                    <span style={{
+                      position:"absolute",top:2,left: excluded ? 2 : 16,
+                      width:14,height:14,borderRadius:"50%",background:"#fff",
+                      transition:"left .15s",boxShadow:"0 1px 2px rgba(0,0,0,.25)",
+                    }}/>
+                  </span>
+                  <span style={{flex:1,fontWeight:500,color: excluded ? T.text2 : T.text}}>
+                    Include in Materials List
+                  </span>
+                </button>
+              );
+            })()}
             <button onClick={delSelected} style={{
               width:"100%",padding:"8px 12px",background:T.danger,border:"none",
               borderRadius:9,color:"#fff",cursor:"pointer",fontSize:12.5,

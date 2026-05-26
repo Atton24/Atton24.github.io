@@ -1085,13 +1085,18 @@ function Stat({label, value, T, mono, span=1}) {
    4.  MATERIALS MODAL
    ════════════════════════════════════════════════════════════════════════ */
 function MaterialsModal({T, yardName, objects, ground, lines, metric, cellM, onClose}) {
+  // Track excluded items separately so we can surface a hint in the modal
+  const excludedObjects = objects.filter(o => o.excludeFromMaterials);
+  const excludedLines   = lines.filter(l => l.excludeFromMaterials);
   const M = useMemoMod(() => {
-    const sprinklers = objects.filter(o => o.type === "sprinkler");
+    const incObjects = objects.filter(o => !o.excludeFromMaterials);
+    const incLines   = lines.filter(l => !l.excludeFromMaterials);
+    const sprinklers = incObjects.filter(o => o.type === "sprinkler");
     const sprinklerCount = sprinklers.length;
     const sprinklersByZone = [1,2,3].map(z => sprinklers.filter(s => s.zone === z).length);
-    const emitters = objects.filter(o => o.type === "drip_emitter").length;
+    const emitters = incObjects.filter(o => o.type === "drip_emitter").length;
     let irrigPipeM = 0, dripPipeM = 0, fenceM = 0, wallM = 0, hedgeM = 0, pathM = 0;
-    lines.forEach(line => {
+    incLines.forEach(line => {
       if (line.points.length < 2) return;
       let len = 0;
       for (let i = 1; i < line.points.length; i++) {
@@ -1111,8 +1116,8 @@ function MaterialsModal({T, yardName, objects, ground, lines, metric, cellM, onC
     const dripPipe  = dripPipeM  * 1.15;
     const elbows   = Math.ceil(irrigPipe / 2.5);
     const tees     = Math.max(sprinklerCount - 1, 0);
-    const endcaps  = Math.max(1, lines.filter(l=>l.type==="irrigation").length);
-    const hasWS    = objects.some(o => o.type === "watersource");
+    const endcaps  = Math.max(1, incLines.filter(l=>l.type==="irrigation").length);
+    const hasWS    = incObjects.some(o => o.type === "watersource");
     const zones    = Math.max(1, sprinklersByZone.filter(n=>n>0).length);
     const groundCounts = {};
     Object.values(ground).forEach(g => { groundCounts[g] = (groundCounts[g]||0) + 1; });
@@ -1167,6 +1172,12 @@ function MaterialsModal({T, yardName, objects, ground, lines, metric, cellM, onC
         <div style={{flex:1}}/>
         <ModalBtn T={T} primary flex={0} style={{flex:"0 0 auto",minWidth:120}} onClick={onClose}>Done</ModalBtn>
       </>}>
+      {(excludedObjects.length + excludedLines.length) > 0 && (
+        <div style={{margin:"14px 22px 0",padding:"9px 12px",background:T.accentBg,borderRadius:10,border:`1px solid ${T.accent}`,fontSize:11.5,color:T.text,display:"flex",gap:8,alignItems:"center"}}>
+          <Icon name="sparkle" size={14} color={T.accent}/>
+          <span><strong style={{color:T.accent}}>{excludedObjects.length + excludedLines.length} item{excludedObjects.length + excludedLines.length>1?"s":""} excluded</strong> from this estimate (toggle them back via Select → properties panel).</span>
+        </div>
+      )}
       <div style={{padding:"4px 22px 22px"}}>
         {(M.sprinklerCount>0||M.irrigPipe>0||M.dripPipe>0) && <>
           <Sect title="Irrigation"/>
@@ -1217,7 +1228,7 @@ function MaterialsModal({T, yardName, objects, ground, lines, metric, cellM, onC
             ["gazebo","gazebo","Gazebos / pergolas"],["shed","shed","Sheds"],
             ["pool","pool","Pools"],["compost","compost","Compost bins"],
           ].map(([type,ico,label])=>{
-            const n = objects.filter(o=>o.type===type).length;
+            const n = objects.filter(o=>o.type===type && !o.excludeFromMaterials).length;
             if (!n) return null;
             return <Row key={type} ico={ico} label={label} value={`${n} unit${n>1?"s":""}`}/>;
           })}
