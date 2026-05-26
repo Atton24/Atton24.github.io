@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
 <title>Patch — Backyard Planner</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -24,6 +24,11 @@
   ::-webkit-scrollbar-thumb:hover { background: #b8b1a0; }
   body.dark ::-webkit-scrollbar-thumb { background: #404439; }
   body.dark ::-webkit-scrollbar-thumb:hover { background: #5a5e51; }
+  /* Mobile: lock the layout to the viewport, no rubber-band scrolling */
+  @media (max-width: 768px) {
+    html, body { overscroll-behavior: none; touch-action: manipulation; }
+  }
+  canvas { touch-action: none; }
   kbd {
     font-family: var(--font-mono); font-size: 10.5px; padding: 1px 5px;
     background: #E5DFD0; color: #2A2E25; border-radius: 4px;

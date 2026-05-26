@@ -58,6 +58,15 @@ function BackyardPlanner() {
   const [hoverCell, setHoverCell]   = useState(null);
   const [isFS, setIsFS] = useState(false);
 
+  // Mobile / responsive
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth < 768);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  useEffect(() => {
+    const h = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", h);
+    return () => window.removeEventListener("resize", h);
+  }, []);
+
   // Auto irrigate state
   const [autoResult, setAutoResult] = useState(null);
   const [autoMode, setAutoMode]     = useState("full");
@@ -357,6 +366,52 @@ function BackyardPlanner() {
     finishLine();
   };
 
+  /* ─── TOUCH (mobile) ───
+     Single-finger → acts like mouse for drawing/placing/selecting.
+     Two-finger pinch → zoom the canvas. */
+  const pinch = useRef(null); // {distance, midX, midY, startZoom}
+  const touchToEvent = t => ({clientX: t.clientX, clientY: t.clientY});
+  const handleTouchStart = e => {
+    if (e.touches.length === 1) {
+      e.preventDefault();
+      handleMouseDown(touchToEvent(e.touches[0]));
+    } else if (e.touches.length === 2) {
+      e.preventDefault();
+      // Cancel any single-touch drag
+      isDragging.current = false;
+      if (isDrawingLine) finishLine();
+      const [a, b] = e.touches;
+      const dx = b.clientX - a.clientX, dy = b.clientY - a.clientY;
+      pinch.current = {
+        distance: Math.hypot(dx, dy),
+        startZoom: zoom,
+      };
+    }
+  };
+  const handleTouchMove = e => {
+    if (e.touches.length === 1 && !pinch.current) {
+      e.preventDefault();
+      handleMouseMove(touchToEvent(e.touches[0]));
+    } else if (e.touches.length === 2 && pinch.current) {
+      e.preventDefault();
+      const [a, b] = e.touches;
+      const dx = b.clientX - a.clientX, dy = b.clientY - a.clientY;
+      const d = Math.hypot(dx, dy);
+      const next = pinch.current.startZoom * (d / pinch.current.distance);
+      setZoom(Math.max(0.1, Math.min(3, next)));
+    }
+  };
+  const handleTouchEnd = e => {
+    if (e.touches.length === 0) {
+      handleMouseUp();
+      pinch.current = null;
+    } else if (e.touches.length === 1 && pinch.current) {
+      // Released one finger of a pinch — stay in pinch mode until both released
+      // by clearing pinch state so next move acts as single-touch
+      pinch.current = null;
+    }
+  };
+
   const delSelected = useCallback(() => {
     if (!sel) return;
     if (sel.kind==="object") push({ground, objects:objects.filter((_,i)=>i!==sel.idx), lines});
@@ -579,11 +634,26 @@ function BackyardPlanner() {
       fontFamily:"var(--font-sans)", background:T.bg, color:T.text,
     }}>
 
+      {/* Mobile sidebar backdrop */}
+      {isMobile && sidebarOpen && (
+        <div onClick={()=>setSidebarOpen(false)} style={{
+          position:"fixed",inset:0,background:"rgba(20,25,15,.5)",zIndex:899,backdropFilter:"blur(2px)",
+        }}/>
+      )}
+
       {/* ════════════════════ SIDEBAR ════════════════════ */}
       <aside style={{
-        width:248, minWidth:248, background:T.sidebar,
+        width: isMobile ? 280 : 248,
+        minWidth: isMobile ? 280 : 248,
+        background:T.sidebar,
         borderRight:`1px solid ${T.border}`,
         display:"flex", flexDirection:"column", overflow:"hidden", flexShrink:0,
+        ...(isMobile ? {
+          position:"fixed", left:0, top:0, bottom:0, zIndex:900,
+          transform: sidebarOpen ? "translateX(0)" : "translateX(-100%)",
+          transition:"transform .25s ease",
+          boxShadow: sidebarOpen ? "4px 0 24px rgba(0,0,0,.2)" : "none",
+        } : {}),
       }}>
         {/* Brand header */}
         <div style={{padding:"16px 16px 12px", borderBottom:`1px solid ${T.borderSoft}`, flexShrink:0}}>
@@ -608,6 +678,14 @@ function BackyardPlanner() {
                 <Icon name={dark?"sun":"moon"} size={15}/>
               </button>
             </Tip>
+            {isMobile && (
+              <button onClick={()=>setSidebarOpen(false)} aria-label="Close menu" style={{
+                background:"transparent", border:`1px solid ${T.border}`, borderRadius:9,
+                cursor:"pointer", padding:"5px 7px", color:T.text2, lineHeight:0,
+              }}>
+                <Icon name="close" size={15}/>
+              </button>
+            )}
           </div>
           <input value={yardName} onChange={e=>setYardName(e.target.value)}
             placeholder="Garden name…"
@@ -1004,9 +1082,20 @@ function BackyardPlanner() {
 
         {/* TOP TOOLBAR */}
         <div style={{
-          display:"flex",alignItems:"center",gap:10,padding:"10px 18px",
+          display:"flex",alignItems:"center",gap: isMobile ? 6 : 10,padding: isMobile ? "8px 12px" : "10px 18px",
           borderBottom:`1px solid ${T.border}`,background:T.bg,flexShrink:0,flexWrap:"wrap",
         }}>
+          {isMobile && (
+            <Tip text="Open tools">
+              <button onClick={()=>setSidebarOpen(o=>!o)} aria-label="Open menu" style={{
+                display:"inline-flex",alignItems:"center",justifyContent:"center",
+                width:36,height:36,border:`1px solid ${T.border}`,borderRadius:10,
+                cursor:"pointer",background:T.primaryBg,color:T.primary,
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+              </button>
+            </Tip>
+          )}
           {/* Yard size stat */}
           <button onClick={()=>setShowSizeModal(true)} style={{
             display:"inline-flex",alignItems:"center",gap:7,padding:"5px 10px 5px 8px",
@@ -1049,42 +1138,59 @@ function BackyardPlanner() {
           )}
 
           {/* Zoom */}
-          <div style={{display:"flex",alignItems:"center",gap:7,padding:"3px 11px 3px 9px",border:`1px solid ${T.border}`,borderRadius:9,background:T.bg}}>
-            <span style={{fontSize:11,color:T.text2,fontWeight:600}}>Zoom</span>
-            <input type="range" min={0.1} max={3} step={0.05} value={zoom} onChange={e=>setZoom(+e.target.value)} style={{width:80}}/>
-            <span style={{fontSize:11,color:T.text2,minWidth:36,fontFamily:"var(--font-mono)",fontWeight:600}}>{Math.round(zoom*100)}%</span>
-            <button onClick={()=>setZoom(1)} title="Reset zoom to 100%"
-              style={{marginLeft:2,background:"none",border:"none",cursor:"pointer",color:T.text3,fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,padding:0}}>↻</button>
-          </div>
+          {isMobile ? (
+            <div style={{display:"flex",alignItems:"center",border:`1px solid ${T.border}`,borderRadius:9,background:T.bg,overflow:"hidden"}}>
+              <button onClick={()=>setZoom(z=>Math.max(0.1, z - 0.15))} style={{
+                padding:"4px 9px",border:"none",background:"transparent",cursor:"pointer",color:T.text2,fontSize:14,fontWeight:700,
+              }}>−</button>
+              <span style={{fontSize:11,color:T.text,minWidth:36,textAlign:"center",fontFamily:"var(--font-mono)",fontWeight:700}}>{Math.round(zoom*100)}%</span>
+              <button onClick={()=>setZoom(z=>Math.min(3, z + 0.15))} style={{
+                padding:"4px 9px",border:"none",background:"transparent",cursor:"pointer",color:T.text2,fontSize:14,fontWeight:700,
+              }}>+</button>
+            </div>
+          ) : (
+            <div style={{display:"flex",alignItems:"center",gap:7,padding:"3px 11px 3px 9px",border:`1px solid ${T.border}`,borderRadius:9,background:T.bg}}>
+              <span style={{fontSize:11,color:T.text2,fontWeight:600}}>Zoom</span>
+              <input type="range" min={0.1} max={3} step={0.05} value={zoom} onChange={e=>setZoom(+e.target.value)} style={{width:80}}/>
+              <span style={{fontSize:11,color:T.text2,minWidth:36,fontFamily:"var(--font-mono)",fontWeight:600}}>{Math.round(zoom*100)}%</span>
+              <button onClick={()=>setZoom(1)} title="Reset zoom to 100%"
+                style={{marginLeft:2,background:"none",border:"none",cursor:"pointer",color:T.text3,fontSize:11,fontFamily:"var(--font-mono)",fontWeight:600,padding:0}}>↻</button>
+            </div>
+          )}
 
-          {/* Help / FS */}
-          <Tip text="Help & tour">
-            <button onClick={()=>setShowHelp(true)} style={iconBtn(T)}><Icon name="help" size={15}/></button>
-          </Tip>
-          <Tip text={isFS?"Exit fullscreen":"Fullscreen"}>
-            <button onClick={toggleFS} style={iconBtn(T)}><Icon name={isFS?"unfull":"full"} size={15}/></button>
-          </Tip>
+          {/* Help / FS (hidden on mobile to save space) */}
+          {!isMobile && <>
+            <Tip text="Help & tour">
+              <button onClick={()=>setShowHelp(true)} style={iconBtn(T)}><Icon name="help" size={15}/></button>
+            </Tip>
+            <Tip text={isFS?"Exit fullscreen":"Fullscreen"}>
+              <button onClick={toggleFS} style={iconBtn(T)}><Icon name={isFS?"unfull":"full"} size={15}/></button>
+            </Tip>
+          </>}
 
           {/* Import / export */}
-          <button onClick={importDesign} style={{
-            ...iconBtn(T), padding:"6px 12px", gap:6, fontSize:12, fontWeight:500,
-          }}>
-            <Icon name="upload" size={14}/> Import
-          </button>
+          {!isMobile && (
+            <button onClick={importDesign} style={{
+              ...iconBtn(T), padding:"6px 12px", gap:6, fontSize:12, fontWeight:500,
+            }}>
+              <Icon name="upload" size={14}/> Import
+            </button>
+          )}
           <button onClick={exportDesign} style={{
-            padding:"6px 13px",fontSize:12.5,fontWeight:600,
+            padding: isMobile ? "6px 10px" : "6px 13px",
+            fontSize:12.5,fontWeight:600,
             background:T.primary,color:"#fff",border:"none",borderRadius:9,
             cursor:"pointer",fontFamily:"var(--font-sans)",
             display:"inline-flex",alignItems:"center",gap:6,
             boxShadow:`0 1px 4px ${hexToRgba(T.primary,.25)}`,
           }}>
-            <Icon name="download" size={14}/> Export
+            <Icon name="download" size={14}/> {!isMobile && "Export"}
           </button>
         </div>
 
         {/* CANVAS AREA */}
         <div style={{
-          flex:1, overflow:"auto", padding:24, background:T.canvas,
+          flex:1, overflow:"auto", padding: isMobile ? 10 : 24, background:T.canvas,
           position:"relative",
           backgroundImage: dark
             ? "radial-gradient(circle at 0 0, rgba(255,255,255,.02), transparent 40%)"
@@ -1111,14 +1217,17 @@ function BackyardPlanner() {
               }}
               onMouseDown={handleMouseDown} onMouseMove={handleMouseMove}
               onMouseUp={handleMouseUp} onMouseLeave={handleMouseLeave}
+              onTouchStart={handleTouchStart} onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd} onTouchCancel={handleTouchEnd}
               onDoubleClick={()=>{ if(isDrawingLine)finishLine(); }}/>
           </div>
         </div>
 
         {/* STATUS BAR */}
         <div style={{
-          padding:"7px 18px",background:T.bg,borderTop:`1px solid ${T.border}`,
-          display:"flex",gap:18,fontSize:11.5,color:T.text2,flexShrink:0,alignItems:"center",
+          padding: isMobile ? "6px 12px" : "7px 18px",
+          background:T.bg,borderTop:`1px solid ${T.border}`,
+          display:"flex",gap: isMobile ? 10 : 18, fontSize:11.5,color:T.text2,flexShrink:0,alignItems:"center",flexWrap:"wrap",
         }}>
           <span style={{display:"inline-flex",alignItems:"center",gap:6}}>
             <Icon name={TOOL_ICON[activeTool] || "select"} size={13} color={T.primary}/>
@@ -1134,20 +1243,33 @@ function BackyardPlanner() {
               </>
             )}
           </span>
-          <span style={{color:T.text3}}>·</span>
-          <span style={{fontFamily:"var(--font-mono)"}}>
-            <strong style={{color:T.text}}>{objects.length}</strong>
-            <span style={{color:T.text3}}> obj </span>
-            <strong style={{color:T.text}}>{lines.length}</strong>
-            <span style={{color:T.text3}}> lines </span>
-            <strong style={{color:T.text}}>{grassCount}</strong>
-            <span style={{color:T.text3}}> grass</span>
-          </span>
-          {isLineActive && <span style={{color:T.primary,fontWeight:500}}>Drag to draw · Double-click to finish</span>}
-          {activeTool==="rect" && <span style={{color:T.primary,fontWeight:500}}>Drag a rectangle to fill</span>}
-          {activeTool==="select" && sel && <span style={{color:T.primary,fontWeight:500}}><kbd>Del</kbd> remove · <kbd>Esc</kbd> deselect</span>}
+          {!isMobile && <>
+            <span style={{color:T.text3}}>·</span>
+            <span style={{fontFamily:"var(--font-mono)"}}>
+              <strong style={{color:T.text}}>{objects.length}</strong>
+              <span style={{color:T.text3}}> obj </span>
+              <strong style={{color:T.text}}>{lines.length}</strong>
+              <span style={{color:T.text3}}> lines </span>
+              <strong style={{color:T.text}}>{grassCount}</strong>
+              <span style={{color:T.text3}}> grass</span>
+            </span>
+          </>}
+          {!isMobile && isLineActive && <span style={{color:T.primary,fontWeight:500}}>Drag to draw · Double-click to finish</span>}
+          {!isMobile && activeTool==="rect" && <span style={{color:T.primary,fontWeight:500}}>Drag a rectangle to fill</span>}
+          {!isMobile && activeTool==="select" && sel && <span style={{color:T.primary,fontWeight:500}}><kbd>Del</kbd> remove · <kbd>Esc</kbd> deselect</span>}
+          {isMobile && isLineActive && <span style={{color:T.primary,fontWeight:500,fontSize:10.5}}>Drag to draw</span>}
           <div style={{flex:1}}/>
-          <span style={{color:T.text3}}><kbd>⌘Z</kbd> undo · <kbd>⌘⇧Z</kbd> redo</span>
+          {!isMobile && <span style={{color:T.text3}}><kbd>⌘Z</kbd> undo · <kbd>⌘⇧Z</kbd> redo</span>}
+          {isMobile && (
+            <div style={{display:"flex",gap:4}}>
+              <button onClick={undo} disabled={!hist.past.length} style={{
+                ...iconBtn(T),padding:"4px 8px",opacity:hist.past.length?1:.4,
+              }}><Icon name="undo" size={13}/></button>
+              <button onClick={redo} disabled={!hist.future.length} style={{
+                ...iconBtn(T),padding:"4px 8px",opacity:hist.future.length?1:.4,
+              }}><Icon name="redo" size={13}/></button>
+            </div>
+          )}
         </div>
       </main>
 
